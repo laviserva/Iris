@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simulador de Algoritmos</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            font-family: Arial, sans-serif;
+        }
+        .sidebar {
+            width: 200px;
+            background-color: #f0f0f0;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .algorithm-container {
+            overflow-y: auto;
+            flex-grow: 1;
+            padding: 20px;
+        }
+        .button-section {
+            padding: 10px;
+            background-color: #e0e0e0;
+            border-top: 1px solid #ccc;
+        }
+        .simulate-button {
+            width: 100%;
+            padding: 10px;
+            background-color: blue;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .checkbox-group {
+            margin-bottom: 10px;
+        }
+        .content {
+            margin-left: 200px;
+            padding: 20px;
+            flex-grow: 1;
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="algorithm-container">
+        <!-- Secciones de algoritmos aquí -->
+        <h3>Sort</h3>
+        <div class="checkbox-group">
+            <!-- Algoritmos de ordenamiento -->
+            <input type="checkbox" id="bubbleSort" name="sortAlgorithm" value="bubbleSort">
+            <label for="bubbleSort">Bubble Sort</label><br>
+            <input type="checkbox" id="quickSort" name="sortAlgorithm" value="quickSort">
+            <label for="quickSort">Quick Sort</label><br>
+            <input type="checkbox" id="mergeSort" name="sortAlgorithm" value="mergeSort">
+            <label for="mergeSort">Merge Sort</label><br>
+            <input type="checkbox" id="heapSort" name="sortAlgorithm" value="heapSort">
+            <label for="heapSort">Heap Sort</label><br>
+            <input type="checkbox" id="insertionSort" name="sortAlgorithm" value="insertionSort">
+            <label for="insertionSort">Insertion Sort</label><br>
+            <input type="checkbox" id="selectionSort" name="sortAlgorithm" value="selectionSort">
+            <label for="selectionSort">Selection Sort</label><br>
+            <input type="checkbox" id="shellSort" name="sortAlgorithm" value="shellSort">
+            <label for="shellSort">Shell Sort</label><br>
+            <input type="checkbox" id="radixSort" name="sortAlgorithm" value="radixSort">
+            <label for="radixSort">Radix Sort</label><br>
+            <input type="checkbox" id="countingSort" name="sortAlgorithm" value="countingSort">
+            <label for="countingSort">Counting Sort</label><br>
+            <input type="checkbox" id="timSort" name="sortAlgorithm" value="timSort">
+            <label for="timSort">Tim Sort</label><br>
+        </div>
+        <h3>Search</h3>
+        <div class="checkbox-group">
+            <!-- Algoritmos de búsqueda -->
+            <input type="checkbox" id="binarySearch" name="searchAlgorithm" value="binarySearch">
+            <label for="binarySearch">Binary Search</label><br>
+            <input type="checkbox" id="linearSearch" name="searchAlgorithm" value="linearSearch">
+            <label for="linearSearch">Linear Search</label><br>
+            <input type="checkbox" id="jumpSearch" name="searchAlgorithm" value="jumpSearch">
+            <label for="jumpSearch">Jump Search</label><br>
+            <input type="checkbox" id="fibonacciSearch" name="searchAlgorithm" value="fibonacciSearch">
+            <label for="fibonacciSearch">Fibonacci Search</label><br>
+            <input type="checkbox" id="exponentialSearch" name="searchAlgorithm" value="exponentialSearch">
+            <label for="exponentialSearch">Exponential Search</label><br>
+            <input type="checkbox" id="interpolationSearch" name="searchAlgorithm" value="interpolationSearch">
+            <label for="interpolationSearch">Interpolation Search</label><br>
+            <input type="checkbox" id="sublistSearch" name="searchAlgorithm" value="sublistSearch">
+            <label for="sublistSearch">Sublist Search</label><br>
+            <input type="checkbox" id="unboundedBinarySearch" name="searchAlgorithm" value="unboundedBinarySearch">
+            <label for="unboundedBinarySearch">Unbounded Binary Search</label><br>
+            <input type="checkbox" id="recursiveLinearSearch" name="searchAlgorithm" value="recursiveLinearSearch">
+            <label for="recursiveLinearSearch">Recursive Linear Search</label><br>
+            <input type="checkbox" id="iterativeBinarySearch" name="searchAlgorithm" value="iterativeBinarySearch">
+            <label for="iterativeBinarySearch">Iterative Binary Search</label><br>
+        </div>
+        <h3>Estadística</h3>
+        <div class="checkbox-group">
+            <!-- Algoritmos estadísticos -->
+            <input type="checkbox" id="mean" name="statAlgorithm" value="mean">
+            <label for="mean">Mean</label><br>
+            <input type="checkbox" id="median" name="statAlgorithm" value="median">
+            <label for="median">Median</label><br>
+            <input type="checkbox" id="mode" name="statAlgorithm" value="mode">
+            <label for="mode">Mode</label><br>
+            <input type="checkbox" id="standardDeviation" name="statAlgorithm" value="standardDeviation">
+            <label for="standardDeviation">Standard Deviation</label><br>
+            <input type="checkbox" id="variance" name="statAlgorithm" value="variance">
+            <label for="variance">Variance</label><br>
+            <input type="checkbox" id="coefficientOfVariation" name="statAlgorithm" value="coefficientOfVariation">
+            <label for="coefficientOfVariation">Coefficient of Variation</label><br>
+            <input type="checkbox" id="range" name="statAlgorithm" value="range">
+            <label for="range">Range</label><br>
+            <input type="checkbox" id="percentiles" name="statAlgorithm" value="percentiles">
+            <label for="percentiles">Percentiles</label><br>
+            <input type="checkbox" id="quartiles" name="statAlgorithm" value="quartiles">
+            <label for="quartiles">Quartiles</label><br>
+            <input type="checkbox" id="skewness" name="statAlgorithm" value="skewness">
+            <label for="skewness">Skewness</label><br>
+        </div>
+    </div>
+    <div class="button-section">
+        <button class="simulate-button" onclick="simulate()">Simular</button>
+    </div>
+</div>
+
+<div class="content">
+    <!-- Espacio para gráficos de Seaborn o cualquier otro contenido -->
+    <div id="graphContainer">
+        <!-- Los gráficos se insertarán aquí -->
+    </div>
+</div>
+
+<script>
+    function simulate() {
+        // Lógica de simulación
+        console.log('Simulación iniciada');
+    }
+</script>
+
+</body>
+</html>
