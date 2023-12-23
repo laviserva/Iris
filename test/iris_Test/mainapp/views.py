@@ -12,7 +12,7 @@ def home(request):
         uploaded_file = request.FILES.get('csvfile')
         print("El libro es: ", uploaded_file.name)
         if uploaded_file:
-
+            df = pd.read_csv(uploaded_file)
             return JsonResponse({'message': 'Archivo procesado exitosamente'})
 
         else:
