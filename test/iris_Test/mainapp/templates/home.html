@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página de Inicio</title>
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <style>
+        /* Estilos existentes */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        #drop-area {
+            border: 2px dashed #007bff;
+            padding: 50px;
+            text-align: center;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            width: 80%;
+            max-width: 600px;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        #file-name {
+            margin-bottom: 10px;
+            display: none;
+        }
+        #progress-bar-container {
+            display: none;
+            width: 100%;
+            background-color: #ddd;
+            margin-bottom: 20px;
+        }
+        #progress-bar {
+            height: 20px;
+            background-color: #4CAF50;
+            width: 0%;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+        }
+        .button-container {
+            display: none;
+        }
+        .button {
+            padding: 10px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="drop-area">
+        <form action="/tu-url-de-carga/" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" id="fileElem" accept=".csv" multiple>
+            <label for="fileElem">Arrastra aquí tus archivos .csv o haz clic para seleccionarlos</label>
+        </form>
+    </div>
+    <div id="file-name"></div>
+    <div id="progress-bar-container">
+        <div id="progress-bar">0%</div>
+    </div>
+    <div class="button-container" id="button-container">
+        <button class="button" id="confirm-button">Confirmar</button>
+        <button class="button" id="clear-button">Limpiar</button>
+    </div>
+
+    <script>
+        var csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        function updateProgressBarDisplay(isVisible, percentage = 0) {
+            var progressBarContainer = document.getElementById('progress-bar-container');
+            var progressBar = document.getElementById('progress-bar');
+            if (isVisible) {
+                progressBarContainer.style.display = 'block';
+                progressBar.style.width = percentage + '%';
+                progressBar.textContent = percentage + '%';
+            } else {
+                progressBarContainer.style.display = 'none';
+            }
+        }
+
+        function displayFileName(files) {
+            var fileNameDisplay = document.getElementById('file-name');
+            if (files && files.length > 0) {
+                fileNameDisplay.textContent = 'Cargando: ' + files[0].name;
+                fileNameDisplay.style.display = 'block';
+            } else {
+                fileNameDisplay.style.display = 'none';
+            }
+        }
+
+        function handleDragOver(evt) {
+            console.log("Drag Over");
+            evt.stopPropagation();
+            evt.preventDefault();
+            evt.dataTransfer.dropEffect = 'copy';
+        }
+
+        function handleFileSelect(evt) {
+            console.log("File Selected", evt.type);
+            evt.stopPropagation();
+            evt.preventDefault();
+
+            var files;
+            if (evt.type === 'drop') {
+                // Evento de arrastrar y soltar
+                files = evt.dataTransfer.files;
+                document.getElementById('fileElem').files = files;
+            } else {
+                // Evento de cambio en el input de archivo
+                files = evt.target.files;
+            }
+
+            var files = evt.type === 'drop' ? evt.dataTransfer.files : evt.target.files;
+            if (files.length > 0) {
+                displayFileName(files);
+                updateProgressBarDisplay(true, 100);
+                
+                var buttonContainer = document.getElementById('button-container');
+                buttonContainer.style.display = 'block';
+            }
+        }
+
+        var dropZone = document.getElementById('drop-area');
+        dropZone.addEventListener('dragover', handleDragOver, false);
+        dropZone.addEventListener('drop', handleFileSelect, false);
+
+        document.getElementById('fileElem').addEventListener('change', handleFileSelect);
+
+        document.getElementById('confirm-button').addEventListener('click', function() {
+            var fileInput = document.getElementById('fileElem');
+            if (fileInput.files.length === 0) {
+                alert("Por favor, selecciona un archivo CSV.");
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append('csvfile', fileInput.files[0]);
+
+            fetch('/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrftoken
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('La respuesta de la red no fue OK. Código de estado: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Respuesta del servidor:', data);
+                if (data.message) {
+                    console.log(data.message);
+                }
+                // Restablecer la interfaz de usuario después de la carga
+                updateProgressBarDisplay(false, 0);
+                displayFileName(null);
+                document.getElementById('button-container').style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+            
+        });
+
+        document.getElementById('clear-button').addEventListener('click', function() {
+            var fileInput = document.getElementById('fileElem');
+            fileInput.value = '';
+            updateProgressBarDisplay(false, 0);
+            displayFileName(null);
+            document.getElementById('button-container').style.display = 'none';
+        });
+    </script>
+</body>
+</html>

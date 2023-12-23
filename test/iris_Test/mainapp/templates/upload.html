@@ -1,0 +1,14 @@
+{% load static %}
+<!-- upload.html -->
+<head>
+    <!-- Otros elementos del head -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <p>
+        <label for="file">Cargar archivo CSV:</label>
+        <input type="file" id="file" name="file" accept=".csv">
+    </p>
+    <button type="submit">Cargar archivo</button>
+</form>
