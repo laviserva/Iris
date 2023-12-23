@@ -69,7 +69,9 @@
         <div id="progress-bar">0%</div>
     </div>
     <div class="button-container" id="button-container">
-        <button class="button" id="confirm-button">Confirmar</button>
+        <a href="{% url 'analyzer' %}">
+            <button class="button" id="confirm-button">Confirmar</button>
+        </a>
         <button class="button" id="clear-button">Limpiar</button>
     </div>
 
@@ -168,6 +170,9 @@
                 updateProgressBarDisplay(false, 0);
                 displayFileName(null);
                 document.getElementById('button-container').style.display = 'none';
+                
+                // Enviar a siguiente url
+                //window.location.href = '/analyzer/analyzer/';
             })
             .catch(error => {
                 console.error('Error:', error);
