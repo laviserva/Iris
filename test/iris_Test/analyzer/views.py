@@ -11,16 +11,15 @@ def analyzer(request):
     return render(request, 'analyzer.html')
 
 def generate_plot(request):
-    # Aquí puedes añadir lógica para seleccionar diferentes gráficos basado en la entrada del usuario
+    sns.set_theme(style="whitegrid")
+    data = sns.load_dataset("iris")
 
-    # Ejemplo de gráfico Seaborn
-    sns.set_theme(style="darkgrid")
-    tips = sns.load_dataset("tips")
-    ax = sns.barplot(x="day", y="total_bill", data=tips)
+    # Crear un regplot con Seaborn
+    plot = sns.regplot(x="sepal_length", y="sepal_width", data=data)
 
-    # Guarda la gráfica en un buffer
+    # Guardar la gráfica en un buffer
     buffer = io.BytesIO()
-    plt.savefig(buffer, format='png', dpi=400)  # Aumentar DPI para una mejor resolución
+    plt.savefig(buffer, format='png', dpi=300)
     buffer.seek(0)
     plt.close()
 
