@@ -40,9 +40,17 @@
             margin-bottom: 10px;
         }
         .content {
-            margin-left: 200px;
+            margin-left: 200px; /* Ajusta esto al ancho de tu barra lateral */
             padding: 20px;
-            flex-grow: 1;
+            display: flex;
+            justify-content: center; /* Centrado horizontal */
+            height: calc(100vh - 40px); /* Ajusta la altura si es necesario */
+            text-align: center;
+        }
+
+        .content img {
+            max-width: 100%;
+            height: auto;
         }
     </style>
 </head>
@@ -134,6 +142,10 @@
     <div id="graphContainer">
         <!-- Los gráficos se insertarán aquí -->
     </div>
+</div>
+
+<div class="content">
+    <img id="plotImage" src="{% url 'generate-plot' %}" alt="Gráfica Seaborn">
 </div>
 
 <script>
