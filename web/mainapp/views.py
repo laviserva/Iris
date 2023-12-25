@@ -1,8 +1,6 @@
 # views.py
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
-from .forms import CssUploadForm
-from .models import CssFile
+from django.http import JsonResponse
 from .forms import CsvUploadForm
 
 import pandas as pd
@@ -51,14 +49,3 @@ def cargar_csv(request):
         return JsonResponse({'message': 'Archivo cargado exitosamente.'})
 
     return JsonResponse({'error': 'Método no permitido.'}, status=405)
-
-def upload_css(request):
-    if request.method == 'POST':
-        form = CssUploadForm(request.POST, request.FILES)
-        if form.is_valid():
-            new_file = CssFile(file=request.FILES['file'])
-            new_file.save()
-            return HttpResponse("Archivo CSS cargado con éxito.")
-    else:
-        form = CssUploadForm()
-    return render(request, 'upload.html', {'form': form})
