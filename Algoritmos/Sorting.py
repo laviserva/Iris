@@ -48,7 +48,6 @@ class MergeSort:
                 k += 1
         return data
 
-
 class HeapSort:
     @staticmethod
     def sort(data):
@@ -177,6 +176,73 @@ class CountingSort:
         return data
 
 class TimSort:
+    MIN_MERGE = 32
+
     @staticmethod
-    def sort(data):
-        return data.sort()
+    def calc_min_run(n):
+        """Calcula el tamaño mínimo de una run."""
+        r = 0
+        while n >= TimSort.MIN_MERGE:
+            r |= n & 1
+            n >>= 1
+        return n + r
+
+    @staticmethod
+    def insertion_sort(arr, left, right):
+        """Un simple insertion sort para ordenar un fragmento de array."""
+        for i in range(left + 1, right + 1):
+            temp = arr[i]
+            j = i - 1
+            while j >= left and arr[j] > temp:
+                arr[j + 1] = arr[j]
+                j -= 1
+            arr[j + 1] = temp
+
+    @staticmethod
+    def merge(arr, l, m, r):
+        """Fusiona dos partes del array."""
+        len1, len2 = m - l + 1, r - m
+        left = arr[l:l + len1]
+        right = arr[m + 1:m + 1 + len2]
+
+        i = j = 0
+        k = l
+
+        while i < len1 and j < len2:
+            if left[i] <= right[j]:
+                arr[k] = left[i]
+                i += 1
+            else:
+                arr[k] = right[j]
+                j += 1
+            k += 1
+
+        while i < len1:
+            arr[k] = left[i]
+            i += 1
+            k += 1
+
+        while j < len2:
+            arr[k] = right[j]
+            j += 1
+            k += 1
+
+    @staticmethod
+    def sort(arr):
+        n = len(arr)
+        min_run = TimSort.calc_min_run(n)
+
+        for start in range(0, n, min_run):
+            end = min(start + min_run - 1, n - 1)
+            TimSort.insertion_sort(arr, start, end)
+
+        size = min_run
+        while size < n:
+            for left in range(0, n, 2 * size):
+                mid = min(n - 1, left + size - 1)
+                right = min((left + 2 * size - 1), (n - 1))
+
+                if mid < right:
+                    TimSort.merge(arr, left, mid, right)
+
+            size *= 2
