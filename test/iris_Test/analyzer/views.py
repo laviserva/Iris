@@ -15,7 +15,7 @@ def generate_plot(request):
     data = sns.load_dataset("iris")
 
     # Crear un regplot con Seaborn
-    plot = sns.regplot(x="sepal_length", y="sepal_width", data=data)
+    plot = sns.kdeplot(x="sepal_length", y="sepal_width", data=data, hue="species")
 
     # Guardar la gráfica en un buffer
     buffer = io.BytesIO()
