@@ -1,6 +1,14 @@
 import math
 import random
 
+class LinearSearch:
+    @staticmethod
+    def search(arr, target):
+        for i in range(len(arr)):
+            if arr[i] == target:
+                return i
+        return -1
+
 class BinarySearch:
     @staticmethod
     def search(arr, target):
@@ -13,14 +21,6 @@ class BinarySearch:
                 left = mid + 1
             else:
                 right = mid - 1
-        return -1
-
-class LinearSearch:
-    @staticmethod
-    def search(arr, target):
-        for i in range(len(arr)):
-            if arr[i] == target:
-                return i
         return -1
 
 class JumpSearch:
@@ -46,42 +46,8 @@ class JumpSearch:
 
         return -1
 
-class FibonacciSearch:
-    @staticmethod
-    def search(arr, target):
-        n = len(arr)
-        fibM2 = 0
-        fibM1 = 1
-        fibM = fibM2 + fibM1
-
-        while fibM < n:
-            fibM2 = fibM1
-            fibM1 = fibM
-            fibM = fibM2 + fibM1
-
-        offset = -1
-
-        while fibM > 1:
-            i = min(offset + fibM2, n - 1)
-
-            if arr[i] < target:
-                fibM = fibM1
-                fibM1 = fibM2
-                fibM2 = fibM - fibM1
-                offset = i
-            elif arr[i] > target:
-                fibM = fibM2
-                fibM1 = fibM1 - fibM2
-                fibM2 = fibM - fibM1
-            else:
-                return i
-
-        if fibM1 and arr[offset + 1] == target:
-            return offset + 1
-
-        return -1
-
 class ExponentialSearch:
+    """Realiza una búsqueda exponencial en un arreglo ordenado mediante binary search"""
     @staticmethod
     def search(arr, target):
         if arr[0] == target:
@@ -128,85 +94,6 @@ class InterpolationSearch:
                 high = pos - 1
 
         return -1
-
-class SublistSearch:
-    @staticmethod
-    def search(first, second):
-        ptr1 = first
-        ptr2 = second
-
-        if not ptr1 or not ptr2:
-            return False
-
-        while ptr2:
-            ptr2 = second
-            while ptr1:
-                if not ptr2:
-                    return False
-                elif ptr1.data == ptr2.data:
-                    ptr1 = ptr1.next
-                    ptr2 = ptr2.next
-                else:
-                    break
-
-            if not ptr1:
-                return True
-            ptr1 = first
-            second = second.next
-
-        return False
-
-class UnboundedBinarySearch:
-    @staticmethod
-    def search(arr, target):
-        l, h, val = 0, 1, arr[0]
-
-        while val < target:
-            l = h
-            h = 2 * h
-            val = arr[h]
-
-        return BinarySearch._binary_search(arr, target, l, h)
-
-    @staticmethod
-    def _binary_search(arr, target, low, high):
-        if high >= low:
-            mid = low + (high - low) // 2
-            if arr[mid] == target:
-                return mid
-            elif arr[mid] > target:
-                return UnboundedBinarySearch._binary_search(arr, target, low, mid - 1)
-            else:
-                return UnboundedBinarySearch._binary_search(arr, target, mid + 1, high)
-        else:
-            return -1
-
-class RecursiveLinearSearch:
-    @staticmethod
-    def search(arr, target, index=0):
-        if index >= len(arr):
-            return -1
-        if arr[index] == target:
-            return index
-        return RecursiveLinearSearch.search(arr, target, index + 1)
-
-class IterativeBinarySearch:
-    @staticmethod
-    def search(arr, target):
-        left, right = 0, len(arr) - 1
-
-        while left <= right:
-            mid = left + (right - left) // 2
-
-            if arr[mid] == target:
-                return mid
-            elif arr[mid] < target:
-                left = mid + 1
-            else:
-                right = mid - 1
-
-        return -1
-
 ### Skip list
 class Node_SkipList:
     """Clase para representar un nodo en la Skip List"""
