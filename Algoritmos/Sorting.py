@@ -14,6 +14,29 @@ class QuickSort:
         QuickSort._quick_sort_helper(data, 0, len(data)-1)
         return data
 
+    @staticmethod
+    def _quick_sort_helper(data, low, high):
+        if low < high:
+            pi = QuickSort._partition(data, low, high)
+            QuickSort._quick_sort_helper(data, low, pi-1)
+            QuickSort._quick_sort_helper(data, pi+1, high)
+
+    @staticmethod
+    def _partition(data, low, high):
+        pivot = data[high]
+        i = low - 1
+        for j in range(low, high):
+            if data[j] < pivot:
+                i = i + 1
+                data[i], data[j] = data[j], data[i]
+        data[i+1], data[high] = data[high], data[i+1]
+        return i+1
+
+"""# Uso del algoritmo
+arr = [12, 11, 13, 5, 6, 7]
+sorted_arr = QuickSort.sort(arr)
+print("Sorted array is:", sorted_arr)
+"""
 
 class MergeSort:
     @staticmethod
