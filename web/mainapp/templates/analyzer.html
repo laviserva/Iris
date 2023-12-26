@@ -57,10 +57,11 @@
 <body>
 
 <div class="sidebar">
-        <div class="algorithm-container">
-            <!-- Secciones de algoritmos aquí -->
-            <h3>Sort</h3>
+    <div class="algorithm-container">
+        <h3>Sort</h3>
             <div class="checkbox-group">
+                <input type="checkbox" id="sortAlgorithms" onclick="toggleCheckboxes(this, 'sortAlgorithm')">
+                <label for="sortAlgorithms">All</label><br>
                 <!-- Algoritmos de ordenamiento -->
                 <input type="checkbox" id="bubbleSort" name="sortAlgorithm" value="BubbleSort">
                 <label for="bubbleSort">Bubble Sort</label><br>
@@ -83,8 +84,10 @@
                 <input type="checkbox" id="timSort" name="sortAlgorithm" value="TimSort">
                 <label for="timSort">Tim Sort</label><br>
             </div>
-            <h3>Search</h3>
+        <h3>Search</h3>
             <div class="checkbox-group">
+                <input type="checkbox" id="searchAlgorithms" onclick="toggleCheckboxes(this, 'searchAlgorithm')">
+                <label for="searchAlgorithms">All</label><br>
                 <!-- Algoritmos de búsqueda -->
                 <input type="checkbox" id="linearSearch" name="searchAlgorithm" value="LinearSearch">
                 <label for="linearSearch">Linear Search</label><br>
@@ -103,8 +106,10 @@
                 <input type="checkbox" id="redblacktreeSearch" name="searchAlgorithm" value="RedBlackTree">
                 <label for="redblacktreeSearch">Red Black Tree</label><br>
             </div>
-            <h3>Paralelizables</h3>
+        <h3>Paralelizables</h3>
             <div class="checkbox-group">
+                <input type="checkbox" id="parallelAlgorithms" onclick="toggleCheckboxes(this, 'paralellAlgorithm')">
+                <label for="parallelAlgorithms">All</label><br>
                 <!-- Algoritmos estadísticos -->
                 <input type="checkbox" id="quickparalell" name="paralellAlgorithm" value="ParallelQuickSort">
                 <label for="quickparalell">Quick Sort</label><br>
@@ -184,6 +189,32 @@
             console.error('Error:', error);
         });
     }
+    function toggleCheckboxes(sourceCheckbox, groupName) {
+    document.querySelectorAll(`[name="${groupName}"]`).forEach(checkbox => {
+        checkbox.checked = sourceCheckbox.checked;
+    });
+}
+
+    // Agrega un 'listener' a los checkboxes para desmarcar el checkbox de la sección si uno de ellos se desmarca
+    document.querySelectorAll('[name="sortAlgorithm"], [name="searchAlgorithm"], [name="paralellAlgorithm"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            let groupCheckboxId = this.name === 'sortAlgorithm' ? 'sortAlgorithms' : 
+                                this.name === 'searchAlgorithm' ? 'searchAlgorithms' : 'parallelAlgorithms';
+            if (!this.checked) {
+                document.getElementById(groupCheckboxId).checked = false;
+            } else {
+                // Verificar si todos los checkboxes de la sección están marcados
+                let allChecked = true;
+                document.querySelectorAll(`[name="${this.name}"]`).forEach(cb => {
+                    if (!cb.checked) allChecked = false;
+                });
+                if (allChecked) {
+                    document.getElementById(groupCheckboxId).checked = true;
+                }
+            }
+        });
+    });
+
 </script>
 
 </body>
