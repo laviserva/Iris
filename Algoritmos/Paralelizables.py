@@ -123,10 +123,6 @@ arr = [0.897, 0.565, 0.656, 0.1234, 0.665, 0.3434]
 sorted_arr = ParallelBucketSort.sort(arr)
 print("Sorted array is:", sorted_arr)
 
-
-import threading
-import math
-
 class ParallelRadixSort:
     @staticmethod
     @performance_logger()

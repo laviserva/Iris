@@ -154,24 +154,6 @@ class SkipList:
             return current
         return None
 
-"""# Creación de la Skip List con nivel máximo 3 y probabilidad de 0.5
-skip_list = SkipList(max_level=3, p=0.5)
-
-# Insertando elementos en la Skip List
-print("Insertando elementos:")
-elementos_a_insertar = [3, 6, 7, 9, 12, 19, 17, 26, 21, 25]
-for elem in elementos_a_insertar:
-    skip_list.insert(elem)
-    print(f"Insertado {elem}")
-
-# Realizando búsquedas en la Skip List
-print("\nRealizando búsquedas:")
-elementos_a_buscar = [3, 7, 14, 26]
-for elem in elementos_a_buscar:
-    resultado = "Encontrado" if skip_list.search(elem) else "No encontrado"
-    print(f"Elemento {elem}: {resultado}")
-"""
-######## Binary tree
 class Node_BS:
     def __init__(self, key):
         self.left = None
@@ -210,15 +192,6 @@ class BinaryTree:
             return self._search_recursive(node.left, key)
         return self._search_recursive(node.right, key)
 
-"""bt = BinaryTree()
-bt.insert(3)
-bt.insert(4)
-bt.insert(2)
-
-print(bt.search(4)) # Devuelve el nodo con valor 4
-print(bt.search(5)) # Devuelve None, ya que 5 no está en el árbol"""
-
-### RB Tree
 class Node_RB:
     def __init__(self, data, color="RED"):
         self.data = data
@@ -455,6 +428,32 @@ class RedBlackTree:
                     x = self.root
 
         x.color = "BLACK"
+
+"""# Creación de la Skip List con nivel máximo 3 y probabilidad de 0.5
+skip_list = SkipList(max_level=3, p=0.5)
+
+# Insertando elementos en la Skip List
+print("Insertando elementos:")
+elementos_a_insertar = [3, 6, 7, 9, 12, 19, 17, 26, 21, 25]
+for elem in elementos_a_insertar:
+    skip_list.insert(elem)
+    print(f"Insertado {elem}")
+
+# Realizando búsquedas en la Skip List
+print("\nRealizando búsquedas:")
+elementos_a_buscar = [3, 7, 14, 26]
+for elem in elementos_a_buscar:
+    resultado = "Encontrado" if skip_list.search(elem) else "No encontrado"
+    print(f"Elemento {elem}: {resultado}")
+"""
+
+"""bt = BinaryTree()
+bt.insert(3)
+bt.insert(4)
+bt.insert(2)
+
+print(bt.search(4)) # Devuelve el nodo con valor 4
+print(bt.search(5)) # Devuelve None, ya que 5 no está en el árbol"""
 
 """# Creación del árbol rojo-negro
 rb_tree = RedBlackTree()

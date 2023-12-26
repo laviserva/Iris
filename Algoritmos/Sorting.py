@@ -32,12 +32,6 @@ class QuickSort:
         data[i+1], data[high] = data[high], data[i+1]
         return i+1
 
-"""# Uso del algoritmo
-arr = [12, 11, 13, 5, 6, 7]
-sorted_arr = QuickSort.sort(arr)
-print("Sorted array is:", sorted_arr)
-"""
-
 class MergeSort:
     @staticmethod
     def sort(data):
@@ -101,7 +95,6 @@ class HeapSort:
         if largest != i:
             data[i], data[largest] = data[largest], data[i]
             HeapSort._heapify(data, n, largest)
-
 
 class InsertionSort:
     @staticmethod
@@ -269,3 +262,9 @@ class TimSort:
                     TimSort.merge(arr, left, mid, right)
 
             size *= 2
+
+"""# Uso del algoritmo
+arr = [12, 11, 13, 5, 6, 7]
+sorted_arr = QuickSort.sort(arr)
+print("Sorted array is:", sorted_arr)
+"""
