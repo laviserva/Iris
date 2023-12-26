@@ -3,3 +3,4 @@ mysqlclient==2.2.1
 numpy==1.26.2
 pandas==2.1.4
 seaborn==0.13.0
+memory_profiler==0.61.0
