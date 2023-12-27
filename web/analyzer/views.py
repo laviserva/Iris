@@ -1,6 +1,8 @@
 import matplotlib
 import json
+import sys
 import io
+import os
 
 import matplotlib.pyplot as plt
 from django.shortcuts import render
@@ -10,13 +12,24 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
-matplotlib.use('Agg')  # Usa el backend 'Agg' para Matplotlib
+root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+algoritmos_path = os.path.join(root_path, 'Algoritmos')
+
+if root_path not in sys.path:
+    sys.path.append(root_path)
+
+if algoritmos_path not in sys.path:
+    sys.path.append(algoritmos_path)
+
+from Algoritmos import log_fix, Paralelizables, Searching, Sorting
+
+matplotlib.use('Agg')
+sns.set_theme(style="whitegrid")
 
 def analyzer(request):
     return render(request, 'analyzer.html')
 
-def generate_plot(request):
-    sns.set_theme(style="whitegrid")
+def base_plot(request):
     data = sns.load_dataset("iris")
 
     # Crear un regplot con Seaborn
@@ -28,7 +41,6 @@ def generate_plot(request):
     buffer.seek(0)
     plt.close()
 
-    # Devuelve la imagen como respuesta HTTP
     return HttpResponse(buffer, content_type='image/png')
 
 @csrf_exempt
@@ -39,12 +51,44 @@ def process_algorithms(request):
     search_algorithms = data.get('searchAlgorithm', [])
     parallel_algorithms = data.get('paralellAlgorithm', [])
 
-    # Procesa los datos aquí
-    print('Los algoritmos de ordenamiento seleccionados son:')
-    print(sort_algorithms)
-    print("Los algoritmos de búsqueda seleccionados son:")
-    print(search_algorithms)
-    print("Los algoritmos paralelos seleccionados son:")
-    print(parallel_algorithms)
+    buffer = render_plot(sort_algorithms, search_algorithms, parallel_algorithms)
+
+    # Guardar la imagen en un archivo
+    filename = f"plot.png"
+    filepath = os.path.join("temp", filename)
+    with open(filepath, 'wb') as f:
+        f.write(buffer.getvalue())
+
+    # Almacenar la ruta del archivo en la sesión
+    request.session['latest_plot_image'] = filepath
 
     return JsonResponse({'status': 'success'})
+
+def latest_plot(request):
+    # Obtener la ruta del archivo de la imagen más reciente
+    filepath = request.session.get('latest_plot_image')
+    if filepath and os.path.exists(filepath):
+        with open(filepath, 'rb') as f:
+            return HttpResponse(f.read(), content_type="image/png")
+    else:
+        return HttpResponse("No image available", status=404)
+
+def render_plot(sort_algorithms, search_algorithms, parallel_algorithms):
+    if sort_algorithms == [] and search_algorithms == [] and parallel_algorithms == []:
+        return base_plot()
+    
+    if sort_algorithms != []:
+        ...
+
+    data = sns.load_dataset("penguins")
+
+    # Crear un regplot con Seaborn
+    plot = sns.histplot(x="bill_depth_mm", y="bill_length_mm", data=data)
+
+    # Guardar la gráfica en un buffer
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png', dpi=300)
+    buffer.seek(0)
+    plt.close()
+
+    return buffer
