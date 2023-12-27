@@ -1,8 +1,11 @@
 import math
 import random
 
+from performanzer import performance_logger
+
 class LinearSearch:
     @staticmethod
+    @performance_logger()
     def search(arr, target):
         for i in range(len(arr)):
             if arr[i] == target:
@@ -11,6 +14,7 @@ class LinearSearch:
 
 class BinarySearch:
     @staticmethod
+    @performance_logger()
     def search(arr, target):
         left, right = 0, len(arr) - 1
         while left <= right:
@@ -25,6 +29,7 @@ class BinarySearch:
 
 class JumpSearch:
     @staticmethod
+    @performance_logger()
     def search(arr, target):
         n = len(arr)
         step = math.sqrt(n)
@@ -49,15 +54,25 @@ class JumpSearch:
 class ExponentialSearch:
     """Realiza una búsqueda exponencial en un arreglo ordenado mediante binary search"""
     @staticmethod
+    @performance_logger()
     def search(arr, target):
+        if not arr:
+            return -1
+
         if arr[0] == target:
             return 0
+
         i = 1
         n = len(arr)
         while i < n and arr[i] <= target:
-            i = i * 2
-        return BinarySearch._binary_search(arr, target, i // 2, min(i, n))
-    
+            i *= 2
+
+        left = i // 2
+        right = min(i, n)
+
+        # La búsqueda binaria se maneja igual para números reales
+        return ExponentialSearch._binary_search(arr, target, left, right)
+
     @staticmethod
     def _binary_search(arr, target, left, right):
         if right >= left:
@@ -71,8 +86,16 @@ class ExponentialSearch:
         else:
             return -1
 
+# Ejemplo de uso
+"""arr = [-3.5, -2.1, 0, 1.4, 3.7, 5.9]
+target = 1.4
+result = ExponentialSearch.search(arr, target)
+print(f"El elemento {target} se encuentra en el índice: {result}")"""
+
+
 class InterpolationSearch:
     @staticmethod
+    @performance_logger()
     def search(arr, target):
         low = 0
         high = len(arr) - 1
@@ -94,6 +117,7 @@ class InterpolationSearch:
                 high = pos - 1
 
         return -1
+
 ### Skip list
 class Node_SkipList:
     """Clase para representar un nodo en la Skip List"""
@@ -103,7 +127,7 @@ class Node_SkipList:
 
 class SkipList:
     """Clase para representar la Skip List"""
-    def __init__(self, max_level, p):
+    def __init__(self, max_level=3, p=0.5):
         self.MAX_LEVEL = max_level
         self.p = p
         self.header = self.create_node(self.MAX_LEVEL, -1)
@@ -143,6 +167,7 @@ class SkipList:
                 n.forward[i] = update[i].forward[i]
                 update[i].forward[i] = n
 
+    @performance_logger()
     def search(self, key):
         current = self.header
         for i in range(self.level, -1, -1):
@@ -182,8 +207,9 @@ class BinaryTree:
             else:
                 self._insert_recursive(node.right, key)
 
+    @performance_logger()
     def search(self, key):
-        return self._search_recursive(self.root, key)
+        return self._search_recursive(self.root, key).val
 
     def _search_recursive(self, node, key):
         if node is None or node.val == key:
@@ -308,6 +334,7 @@ class RedBlackTree:
         y.right = x
         x.parent = y
 
+    @performance_logger()
     def search(self, k):
         return self._search_helper(self.root, k)
 
