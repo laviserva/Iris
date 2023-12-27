@@ -28,11 +28,11 @@ class ParallelQuickSort:
 
             return sorted_sublists[0] + [pivot] + sorted_sublists[1]
 
-# Uso del algoritmo
+"""# Uso del algoritmo
 arr = [12, 11, 13, 5, 6, 7]
 sorted_arr = ParallelQuickSort.sort(arr)
 print("Sorted array is:", sorted_arr)
-
+"""
 
 class ParallelMergeSort:
     @staticmethod
@@ -76,11 +76,11 @@ class ParallelMergeSort:
 
         return arr
 
-# Ejemplo de uso
+"""# Ejemplo de uso
 arr = [38, 27, 43, 3, 9, 82, 10]
 sorted_arr = ParallelMergeSort.sort(arr)
 print("Sorted array is:", sorted_arr)
-
+"""
 
 class ParallelBucketSort:
     @staticmethod
@@ -118,10 +118,11 @@ class ParallelBucketSort:
 
         return sorted_arr
 
-# Ejemplo de uso
+"""# Ejemplo de uso
 arr = [0.897, 0.565, 0.656, 0.1234, 0.665, 0.3434]
 sorted_arr = ParallelBucketSort.sort(arr)
 print("Sorted array is:", sorted_arr)
+"""
 
 class ParallelRadixSort:
     @staticmethod
@@ -190,11 +191,11 @@ class ParallelRadixSort:
 
         return sorted_arr
 
-# Ejemplo de uso
+"""# Ejemplo de uso
 arr = [0.897, -0.565, 0.656, -0.1234, 0.665, -0.3434]
 sorted_arr = ParallelRadixSort.sort(arr)
 print("Sorted array is:", sorted_arr)
-
+"""
 
 class ParallelCountingSort:
     @staticmethod
@@ -238,11 +239,11 @@ class ParallelCountingSort:
         # Escalar hacia atrás y devolver
         return [x / factor for x in sorted_arr]
 
-# Ejemplo de uso
+"""# Ejemplo de uso
 arr = [0.897, -0.565, 0.656, -0.1234, 0.665, -0.3434]
 sorted_arr = ParallelCountingSort.sort(arr)
 print("Sorted array is:", sorted_arr)
-
+"""
 
 class ParallelTimSort:
     @staticmethod
@@ -282,11 +283,11 @@ class ParallelTimSort:
         result.extend(right)
         return result
 
-# Ejemplo de uso
+"""# Ejemplo de uso
 arr = [12, 11, 13, 5, 6, -7.1]
 sorted_arr = ParallelTimSort.sort(arr)
 print("Sorted array is:", sorted_arr)
-
+"""
 
 class ParallelExponentialSearch:
     @staticmethod
@@ -318,11 +319,11 @@ class ParallelExponentialSearch:
                 right = mid - 1
         return -1
 
-# Ejemplo de uso
+"""# Ejemplo de uso
 arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 target = 5
 index = ParallelExponentialSearch.search(arr, target)
-print(f"Element found at index: {index}")
+print(f"Element found at index: {index}")"""
 
 
 class ParallelInterpolationSearch:
@@ -347,8 +348,9 @@ class ParallelInterpolationSearch:
 
         return -1
 
-# Ejemplo de uso
+"""# Ejemplo de uso
 arr = [10, 12, 13, 16, 18, 19, 20, 21, 22, 23, 24, 33, 35, 42, 47]
 target = 18
 index = ParallelInterpolationSearch.search(arr, target)
 print(f"Element found at index: {index}")
+"""
