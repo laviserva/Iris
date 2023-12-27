@@ -77,8 +77,19 @@ def render_plot(sort_algorithms, search_algorithms, parallel_algorithms):
     if sort_algorithms == [] and search_algorithms == [] and parallel_algorithms == []:
         return base_plot()
     
+    arr = [0.897, -0.565, 0.656, -0.1234, 0.665, -0.3434]
     if sort_algorithms != []:
-        ...
+        for alg_name in sort_algorithms:
+            independent_array = arr.copy()
+            sort_method = getattr(getattr(Sorting, alg_name), 'sort')
+            print(sort_method, independent_array)
+            if sort_method:
+                # Ejecutando el algoritmo
+                print(f"Ejecutando {alg_name}... ", end="")
+                sort_method(independent_array)
+                print("OK")
+            else:
+                print(f"Algoritmo {alg_name} no encontrado o no tiene método sort.")
 
     data = sns.load_dataset("penguins")
 
