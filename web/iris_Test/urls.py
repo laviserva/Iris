@@ -17,10 +17,11 @@ Including another URLconf
 # urls.py
 from django.urls import include, path
 from mainapp.views import home
-from analyzer.views import generate_plot
+from analyzer.views import base_plot, latest_plot
 
 urlpatterns = [
     path('', home, name='home'),
     path('analyzer/', include('analyzer.urls')),
-    path('analyzer/generate-plot/', generate_plot, name='generate-plot'),
+    path('analyzer/generate-plot/', base_plot, name='generate-plot'),
+    path('analyzer/latest_plot/', latest_plot, name='latest-plot'),  # Agregar esta línea
 ]
