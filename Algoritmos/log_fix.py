@@ -1,11 +1,10 @@
 import os
-
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 actual_dir = os.path.join(parent_dir, 'logs')
 file_dir = os.path.join(actual_dir, 'algorithm_performance.txt')
 
-def read_and_aggregate_log(file_path):
-    with open(file_path, 'r') as file:
+def fix():
+    with open(file_dir, 'r') as file:
         lines = file.readlines()
 
     log_data = {}
@@ -14,7 +13,8 @@ def read_and_aggregate_log(file_path):
         algorithm = parts[0].split(': ')[1]
         time = float(parts[1].split(': ')[1].split(' ')[0])
         memory = float(parts[2].split(': ')[1].split(' ')[0])
-
+        if not ".sort" in algorithm and not ".search" in algorithm:
+            continue
         if algorithm not in log_data:
             log_data[algorithm] = {'time': time, 'memory': memory}
         else:
