@@ -1,5 +1,8 @@
+from performanzer import performance_logger
+
 class BubbleSort:
     @staticmethod
+    @performance_logger()
     def sort(data):
         n = len(data)
         for i in range(n-1):
@@ -10,11 +13,13 @@ class BubbleSort:
 
 class QuickSort:
     @staticmethod
+    @performance_logger()
     def sort(data):
         QuickSort._quick_sort_helper(data, 0, len(data)-1)
         return data
 
     @staticmethod
+    @performance_logger()
     def _quick_sort_helper(data, low, high):
         if low < high:
             pi = QuickSort._partition(data, low, high)
@@ -22,6 +27,7 @@ class QuickSort:
             QuickSort._quick_sort_helper(data, pi+1, high)
 
     @staticmethod
+    @performance_logger()
     def _partition(data, low, high):
         pivot = data[high]
         i = low - 1
@@ -34,6 +40,7 @@ class QuickSort:
 
 class MergeSort:
     @staticmethod
+    @performance_logger()
     def sort(data):
         if len(data) > 1:
             mid = len(data) // 2
@@ -67,6 +74,7 @@ class MergeSort:
 
 class HeapSort:
     @staticmethod
+    @performance_logger()
     def sort(data):
         n = len(data)
 
@@ -81,6 +89,7 @@ class HeapSort:
         return data
 
     @staticmethod
+    @performance_logger()
     def _heapify(data, n, i):
         largest = i
         l = 2 * i + 1
@@ -98,6 +107,7 @@ class HeapSort:
 
 class InsertionSort:
     @staticmethod
+    @performance_logger()
     def sort(data):
         for i in range(1, len(data)):
             key = data[i]
@@ -109,6 +119,7 @@ class InsertionSort:
         return data
 
     @staticmethod
+    @performance_logger()
     def _quick_sort_helper(data, low, high):
         if low < high:
             pi = QuickSort._partition(data, low, high)
@@ -116,6 +127,7 @@ class InsertionSort:
             QuickSort._quick_sort_helper(data, pi+1, high)
 
     @staticmethod
+    @performance_logger()
     def _partition(data, low, high):
         pivot = data[high]
         i = low - 1
@@ -128,6 +140,7 @@ class InsertionSort:
 
 class SelectionSort:
     @staticmethod
+    @performance_logger()
     def sort(data):
         for i in range(len(data)):
             min_idx = i
@@ -139,62 +152,127 @@ class SelectionSort:
 
 class BucketSort:
     @staticmethod
+    @performance_logger()
     def sort(data):
-        bucket = [[] for _ in range(len(data))]
+        if not data:
+            return []
+
+        # Encuentra los valores mínimo y máximo para calcular el rango
+        min_value = min(data)
+        max_value = max(data)
+        range_value = max_value - min_value
+
+        # Crea buckets para números negativos, positivos y cero
+        bucket_count = len(data)
+        buckets = [[] for _ in range(bucket_count)]
+        
         for d in data:
-            index = int(10 * d)
-            bucket[index].append(d)
-        for b in bucket:
-            b.sort()
-        return [item for sublist in bucket for item in sublist]
+            # Índice normalizado para el bucket
+            if range_value > 0:
+                index = int((d - min_value) / range_value * (bucket_count - 1))
+            else:
+                index = 0
+            buckets[index].append(d)
+        
+        # Ordena cada bucket y combina
+        sorted_arr = []
+        for bucket in buckets:
+            sorted_arr.extend(sorted(bucket))
+        return sorted_arr
 
 class RadixSort:
     @staticmethod
+    @performance_logger()
     def sort(data):
-        RADIX = 10
-        maxLength = False
-        tmp, placement = -1, 1
+        def counting_sort(arr, exp1):
+            n = len(arr)
+            output = [0] * n
+            count = [0] * 10
 
-        while not maxLength:
-            maxLength = True
-            buckets = [list() for _ in range(RADIX)]
+            for i in range(0, n):
+                index = int(arr[i] / exp1)
+                count[(index % 10)] += 1
 
-            for i in data:
-                tmp = i // placement
-                buckets[tmp % RADIX].append(i)
-                if maxLength and tmp > 0:
-                    maxLength = False
+            for i in range(1, 10):
+                count[i] += count[i - 1]
 
-            a = 0
-            for b in range(RADIX):
-                buck = buckets[b]
-                for i in buck:
-                    data[a] = i
-                    a += 1
+            i = n - 1
+            while i >= 0:
+                index = int(arr[i] / exp1)
+                output[count[(index % 10)] - 1] = arr[i]
+                count[(index % 10)] -= 1
+                i -= 1
 
-            placement *= RADIX
-        return data
+            for i in range(0, len(arr)):
+                arr[i] = output[i]
+
+        def radix_sort(arr):
+            max1 = max(arr)
+            exp = 1
+            while max1 / exp > 1:
+                counting_sort(arr, exp)
+                exp *= 10
+
+        # Separar los números negativos y positivos
+        neg = [-x for x in data if x < 0]
+        non_neg = [x for x in data if x >= 0]
+
+        # Aplicar Radix Sort a cada subconjunto
+        radix_sort(neg)
+        radix_sort(non_neg)
+
+        # Unir los resultados y ajustar los números negativos
+        return [-x for x in reversed(neg)] + non_neg
 
 class CountingSort:
     @staticmethod
+    @performance_logger()
     def sort(data):
+        # Calcula el número máximo de dígitos decimales en los números
+        decimal_places = max([len(str(number).split('.')[-1]) for number in data if '.' in str(number)], default=0)
+        scale_factor = 10 ** decimal_places
+        scaled_data = [int(x * scale_factor) for x in data]
+
+        # Separar números negativos y positivos
+        negative_nums = [-x for x in scaled_data if x < 0]
+        non_negative_nums = [x for x in scaled_data if x >= 0]
+
+        # Aplicar counting sort a cada subconjunto
+        sorted_negatives = CountingSort._counting_sort(negative_nums)
+        sorted_non_negatives = CountingSort._counting_sort(non_negative_nums)
+
+        # Combinar los resultados y desescalar
+        combined = [-x for x in reversed(sorted_negatives)] + sorted_non_negatives
+        return [x / scale_factor for x in combined]
+
+    @staticmethod
+    def _counting_sort(data):
+        if not data:
+            return data
+
+        min_val = min(data)
         max_val = max(data)
-        m = max_val + 1
-        count = [0] * m
-                
-        for a in data:
-            count[a] += 1
-        i = 0
-        for a in range(m):
-            for c in range(count[a]):
-                data[i] = a
-                i += 1
-        return data
+        range_of_elements = max_val - min_val + 1
+        count = [0] * range_of_elements
+        output = [0] * len(data)
+
+        for number in data:
+            count[number - min_val] += 1
+
+        for i in range(1, len(count)):
+            count[i] += count[i - 1]
+
+        for number in reversed(data):
+            output[count[number - min_val] - 1] = number
+            count[number - min_val] -= 1
+
+        return output
 
 class TimSort:
     MIN_MERGE = 32
 
     @staticmethod
+    @performance_logger()
     def calc_min_run(n):
         """Calcula el tamaño mínimo de una run."""
         r = 0
@@ -204,8 +282,8 @@ class TimSort:
         return n + r
 
     @staticmethod
+    @performance_logger()
     def insertion_sort(arr, left, right):
-        """Un simple insertion sort para ordenar un fragmento de array."""
         for i in range(left + 1, right + 1):
             temp = arr[i]
             j = i - 1
@@ -215,8 +293,8 @@ class TimSort:
             arr[j + 1] = temp
 
     @staticmethod
+    @performance_logger()
     def merge(arr, l, m, r):
-        """Fusiona dos partes del array."""
         len1, len2 = m - l + 1, r - m
         left = arr[l:l + len1]
         right = arr[m + 1:m + 1 + len2]
@@ -244,6 +322,7 @@ class TimSort:
             k += 1
 
     @staticmethod
+    @performance_logger()
     def sort(arr):
         n = len(arr)
         min_run = TimSort.calc_min_run(n)
@@ -262,9 +341,3 @@ class TimSort:
                     TimSort.merge(arr, left, mid, right)
 
             size *= 2
-
-"""# Uso del algoritmo
-arr = [12, 11, 13, 5, 6, 7]
-sorted_arr = QuickSort.sort(arr)
-print("Sorted array is:", sorted_arr)
-"""
