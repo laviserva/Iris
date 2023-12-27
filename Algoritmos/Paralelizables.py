@@ -1,6 +1,7 @@
 import threading
 import math
 
+import concurrent.futures
 from performanzer import performance_logger
 
 class ParallelQuickSort:
@@ -293,38 +294,51 @@ class ParallelExponentialSearch:
     @staticmethod
     @performance_logger()
     def search(arr, target):
-        if arr[0] == target:
+        segment_size = len(arr) // 4  # Determina el número de segmentos según la longitud del arreglo
+        futures = []
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            for i in range(0, len(arr), segment_size):
+                # Envía cada segmento del arreglo a la búsqueda exponencial en un hilo separado
+                futures.append(executor.submit(ParallelExponentialSearch._exponential_search, arr[i:i + segment_size], target))
+
+            for future in concurrent.futures.as_completed(futures):
+                result = future.result()
+                if result != -1:
+                    return result
+        return -1
+
+    @staticmethod
+    def _exponential_search(segment, target):
+        if segment[0] == target:
             return 0
 
-        # Encontrar rango para la búsqueda binaria
         i = 1
-        while i < len(arr) and arr[i] <= target:
-            i = i * 2
+        while i < len(segment) and segment[i] <= target:
+            i *= 2
 
-        # Llamar a la búsqueda binaria para el rango encontrado
-        return ParallelExponentialSearch._binary_search(arr, target, i // 2, min(i, len(arr)))
+        # Ajuste de índices para el segmento
+        left = max(0, i // 2)
+        right = min(i, len(segment)) - 1  # Ajuste aquí
+
+        # Llamada a la búsqueda binaria con índices ajustados
+        return ParallelExponentialSearch._binary_search(segment, target, left, right)
 
     @staticmethod
     def _binary_search(arr, target, left, right):
+        # Asegúrate de que los índices estén dentro del rango del segmento
         if right < left:
             return -1
 
         while left <= right:
             mid = left + (right - left) // 2
             if arr[mid] == target:
-                return mid
+                return mid  # Asegúrate de ajustar este índice según sea necesario
             elif arr[mid] < target:
                 left = mid + 1
             else:
                 right = mid - 1
+
         return -1
-
-"""# Ejemplo de uso
-arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-target = 5
-index = ParallelExponentialSearch.search(arr, target)
-print(f"Element found at index: {index}")"""
-
 
 class ParallelInterpolationSearch:
     @staticmethod
