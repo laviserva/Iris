@@ -136,12 +136,7 @@
 </div>
 
 <div class="content">
-    <!-- Espacio para gráficos de Seaborn-->
-    <div id="graphContainer">
-    </div>
-</div>
-
-<div class="content">
+    <div id="loadingIndicator">Cargando...</div>
     <img id="plotImage" src="{% url 'generate-plot' %}" alt="Gráfica Seaborn">
 </div>
 
@@ -173,7 +168,10 @@
     function sendCheckboxData() {
         let data = collectCheckboxData();
 
-        fetch("{% url 'process-algorithms' %}", {
+        document.getElementById('loadingIndicator').style.display = 'block';
+        document.getElementById('plotImage').style.display = 'none';
+
+        fetch("/analyzer/process_algorithms/", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -183,17 +181,28 @@
         })
         .then(response => response.json())
         .then(data => {
-            console.log('Success:', data);
+            if (data.status === 'success') {
+                let plotImage = document.getElementById('plotImage');
+                plotImage.onload = function() {
+                    document.getElementById('loadingIndicator').style.display = 'none';
+                    plotImage.style.display = 'block';
+                };
+                plotImage.src = "/analyzer/latest_plot/" + "?dummy=" + new Date().getTime();
+            } else {
+                console.error('Error en la respuesta del servidor');
+                document.getElementById('loadingIndicator').style.display = 'none';
+            }
         })
         .catch((error) => {
             console.error('Error:', error);
+            document.getElementById('loadingIndicator').style.display = 'none';
         });
     }
     function toggleCheckboxes(sourceCheckbox, groupName) {
-    document.querySelectorAll(`[name="${groupName}"]`).forEach(checkbox => {
-        checkbox.checked = sourceCheckbox.checked;
-    });
-}
+        document.querySelectorAll(`[name="${groupName}"]`).forEach(checkbox => {
+            checkbox.checked = sourceCheckbox.checked;
+        });
+    }
 
     // Agrega un 'listener' a los checkboxes para desmarcar el checkbox de la sección si uno de ellos se desmarca
     document.querySelectorAll('[name="sortAlgorithm"], [name="searchAlgorithm"], [name="paralellAlgorithm"]').forEach(checkbox => {
