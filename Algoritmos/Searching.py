@@ -68,30 +68,22 @@ class ExponentialSearch:
             i *= 2
 
         left = i // 2
-        right = min(i, n)
+        right = min(i, n - 1)
 
         # La búsqueda binaria se maneja igual para números reales
         return ExponentialSearch._binary_search(arr, target, left, right)
 
-    @staticmethod
     def _binary_search(arr, target, left, right):
-        if right >= left:
+        while left <= right:
             mid = left + (right - left) // 2
             if arr[mid] == target:
                 return mid
             elif arr[mid] > target:
-                return ExponentialSearch._binary_search(arr, target, left, mid - 1)
+                right = mid - 1
             else:
-                return ExponentialSearch._binary_search(arr, target, mid + 1, right)
-        else:
-            return -1
+                left = mid + 1
 
-# Ejemplo de uso
-"""arr = [-3.5, -2.1, 0, 1.4, 3.7, 5.9]
-target = 1.4
-result = ExponentialSearch.search(arr, target)
-print(f"El elemento {target} se encuentra en el índice: {result}")"""
-
+        return -1  # Retorna -1 si el número no se encuentra
 
 class InterpolationSearch:
     @staticmethod
@@ -177,7 +169,7 @@ class SkipList:
 
         if current and current.key == key:
             return current
-        return None
+        return -1
 
 class Node_BS:
     def __init__(self, key):
@@ -209,10 +201,12 @@ class BinaryTree:
 
     @performance_logger()
     def search(self, key):
-        return self._search_recursive(self.root, key).val
+        return self._search_recursive(self.root, key)
 
     def _search_recursive(self, node, key):
-        if node is None or node.val == key:
+        if not node:
+            return -1
+        if node.val == key:
             return node
         if key < node.val:
             return self._search_recursive(node.left, key)
@@ -340,7 +334,7 @@ class RedBlackTree:
 
     def _search_helper(self, node, key):
         if node == self.TNULL or key == node.data:
-            return node
+            return node if node != self.TNULL else -1
 
         if key < node.data:
             return self._search_helper(node.left, key)
@@ -455,58 +449,3 @@ class RedBlackTree:
                     x = self.root
 
         x.color = "BLACK"
-
-"""# Creación de la Skip List con nivel máximo 3 y probabilidad de 0.5
-skip_list = SkipList(max_level=3, p=0.5)
-
-# Insertando elementos en la Skip List
-print("Insertando elementos:")
-elementos_a_insertar = [3, 6, 7, 9, 12, 19, 17, 26, 21, 25]
-for elem in elementos_a_insertar:
-    skip_list.insert(elem)
-    print(f"Insertado {elem}")
-
-# Realizando búsquedas en la Skip List
-print("\nRealizando búsquedas:")
-elementos_a_buscar = [3, 7, 14, 26]
-for elem in elementos_a_buscar:
-    resultado = "Encontrado" if skip_list.search(elem) else "No encontrado"
-    print(f"Elemento {elem}: {resultado}")
-"""
-
-"""bt = BinaryTree()
-bt.insert(3)
-bt.insert(4)
-bt.insert(2)
-
-print(bt.search(4)) # Devuelve el nodo con valor 4
-print(bt.search(5)) # Devuelve None, ya que 5 no está en el árbol"""
-
-"""# Creación del árbol rojo-negro
-rb_tree = RedBlackTree()
-
-# Insertando elementos
-elements = [20, 15, 25, 10, 18, 30]
-for el in elements:
-    rb_tree.insert(el)
-    print(f"Insertado {el} en el árbol rojo-negro.")
-
-# Mostrando el árbol
-print("\nEstado actual del árbol rojo-negro:")
-
-# Búsqueda de un elemento
-search_key = 18
-found_node = rb_tree.search(search_key)
-if found_node != rb_tree.TNULL:
-    print(f"\nElemento {search_key} encontrado en el árbol.")
-else:
-    print(f"\nElemento {search_key} no se encuentra en el árbol.")
-
-# Eliminando un elemento
-delete_key = 15
-rb_tree.delete_node(delete_key)
-print(f"\nElemento {delete_key} eliminado del árbol rojo-negro.")
-
-# Mostrando el árbol después de la eliminación
-print("\nEstado del árbol rojo-negro después de la eliminación:")"""
-
