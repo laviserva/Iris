@@ -19,7 +19,6 @@ class QuickSort:
         return data
 
     @staticmethod
-    @performance_logger()
     def _quick_sort_helper(data, low, high):
         if low < high:
             pi = QuickSort._partition(data, low, high)
@@ -27,7 +26,6 @@ class QuickSort:
             QuickSort._quick_sort_helper(data, pi+1, high)
 
     @staticmethod
-    @performance_logger()
     def _partition(data, low, high):
         pivot = data[high]
         i = low - 1
@@ -89,7 +87,6 @@ class HeapSort:
         return data
 
     @staticmethod
-    @performance_logger()
     def _heapify(data, n, i):
         largest = i
         l = 2 * i + 1
@@ -119,7 +116,6 @@ class InsertionSort:
         return data
 
     @staticmethod
-    @performance_logger()
     def _quick_sort_helper(data, low, high):
         if low < high:
             pi = QuickSort._partition(data, low, high)
@@ -127,7 +123,6 @@ class InsertionSort:
             QuickSort._quick_sort_helper(data, pi+1, high)
 
     @staticmethod
-    @performance_logger()
     def _partition(data, low, high):
         pivot = data[high]
         i = low - 1
@@ -278,7 +273,6 @@ class TimSort:
         return n + r
 
     @staticmethod
-    @performance_logger()
     def insertion_sort(arr, left, right):
         for i in range(left + 1, right + 1):
             temp = arr[i]
@@ -289,7 +283,6 @@ class TimSort:
             arr[j + 1] = temp
 
     @staticmethod
-    @performance_logger()
     def merge(arr, l, m, r):
         len1, len2 = m - l + 1, r - m
         left = arr[l:l + len1]

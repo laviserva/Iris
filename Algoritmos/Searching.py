@@ -70,7 +70,6 @@ class ExponentialSearch:
         left = i // 2
         right = min(i, n - 1)
 
-        # La búsqueda binaria se maneja igual para números reales
         return ExponentialSearch._binary_search(arr, target, left, right)
 
     def _binary_search(arr, target, left, right):
@@ -83,7 +82,7 @@ class ExponentialSearch:
             else:
                 left = mid + 1
 
-        return -1  # Retorna -1 si el número no se encuentra
+        return -1
 
 class InterpolationSearch:
     @staticmethod
