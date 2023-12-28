@@ -207,6 +207,8 @@ class RadixSort:
                 arr[i] = output[i]
 
         def radix_sort(arr):
+            if not arr:
+                return
             max1 = max(arr)
             exp = 1
             while max1 / exp > 1:
@@ -228,45 +230,39 @@ class CountingSort:
     @staticmethod
     @performance_logger()
     def sort(data):
-        # Calcula el número máximo de dígitos decimales en los números
-        decimal_places = max([len(str(number).split('.')[-1]) for number in data if '.' in str(number)], default=0)
-        scale_factor = 10 ** decimal_places
+        # Escalamos los números para reducir el rango
+        #max_abs_val = max(abs(num) for num in data)
+        scale_factor = 10**3 #10 ** len(str(int(max_abs_val)))
         scaled_data = [int(x * scale_factor) for x in data]
 
-        # Separar números negativos y positivos
+        # Separamos los números negativos y no negativos
         negative_nums = [-x for x in scaled_data if x < 0]
         non_negative_nums = [x for x in scaled_data if x >= 0]
 
-        # Aplicar counting sort a cada subconjunto
-        sorted_negatives = CountingSort._counting_sort(negative_nums)
-        sorted_non_negatives = CountingSort._counting_sort(non_negative_nums)
+        # Ordenamos cada subconjunto usando un counting sort optimizado
+        sorted_negatives = CountingSort._optimized_counting_sort(negative_nums)
+        sorted_non_negatives = CountingSort._optimized_counting_sort(non_negative_nums)
 
-        # Combinar los resultados y desescalar
+        # Combinamos y desescalamos
         combined = [-x for x in reversed(sorted_negatives)] + sorted_non_negatives
         return [x / scale_factor for x in combined]
 
     @staticmethod
-    def _counting_sort(data):
+    def _optimized_counting_sort(data):
         if not data:
             return data
 
-        min_val = min(data)
-        max_val = max(data)
-        range_of_elements = max_val - min_val + 1
-        count = [0] * range_of_elements
-        output = [0] * len(data)
-
+        # Usamos un diccionario para el conteo en lugar de una lista
+        count = {}
         for number in data:
-            count[number - min_val] += 1
+            count[number] = count.get(number, 0) + 1
 
-        for i in range(1, len(count)):
-            count[i] += count[i - 1]
+        sorted_data = []
+        for number in range(min(count), max(count) + 1):
+            sorted_data.extend([number] * count.get(number, 0))
 
-        for number in reversed(data):
-            output[count[number - min_val] - 1] = number
-            count[number - min_val] -= 1
+        return sorted_data
 
-        return output
 
 class TimSort:
     MIN_MERGE = 32
@@ -341,3 +337,4 @@ class TimSort:
                     TimSort.merge(arr, left, mid, right)
 
             size *= 2
+        return arr
