@@ -29,12 +29,6 @@ class ParallelQuickSort:
 
             return sorted_sublists[0] + [pivot] + sorted_sublists[1]
 
-"""# Uso del algoritmo
-arr = [12, 11, 13, 5, 6, 7]
-sorted_arr = ParallelQuickSort.sort(arr)
-print("Sorted array is:", sorted_arr)
-"""
-
 class ParallelMergeSort:
     @staticmethod
     @performance_logger()
@@ -77,12 +71,6 @@ class ParallelMergeSort:
 
         return arr
 
-"""# Ejemplo de uso
-arr = [38, 27, 43, 3, 9, 82, 10]
-sorted_arr = ParallelMergeSort.sort(arr)
-print("Sorted array is:", sorted_arr)
-"""
-
 class ParallelBucketSort:
     @staticmethod
     @performance_logger()
@@ -119,44 +107,51 @@ class ParallelBucketSort:
 
         return sorted_arr
 
-"""# Ejemplo de uso
-arr = [0.897, 0.565, 0.656, 0.1234, 0.665, 0.3434]
-sorted_arr = ParallelBucketSort.sort(arr)
-print("Sorted array is:", sorted_arr)
-"""
-
 class ParallelRadixSort:
     @staticmethod
     @performance_logger()
-    def sort(arr, decimal_places=3):
-        factor = 10 ** decimal_places
-        scaled_arr = [int(x * factor) for x in arr]
+    def sort(data):
+        def counting_sort(arr, exp1):
+            n = len(arr)
+            output = [0] * n
+            count = [0] * 10
 
-        negative_nums = [-x for x in scaled_arr if x < 0]
-        non_negative_nums = [x for x in scaled_arr if x >= 0]
+            for i in range(0, n):
+                index = int(arr[i] / exp1)
+                count[(index % 10)] += 1
 
-        sorted_negatives = []
-        sorted_non_negatives = []
+            for i in range(1, 10):
+                count[i] += count[i - 1]
 
-        def sort_negatives():
-            nonlocal sorted_negatives
-            sorted_negatives = ParallelRadixSort._radix_sort(negative_nums)
+            i = n - 1
+            while i >= 0:
+                index = int(arr[i] / exp1)
+                output[count[(index % 10)] - 1] = arr[i]
+                count[(index % 10)] -= 1
+                i -= 1
 
-        def sort_non_negatives():
-            nonlocal sorted_non_negatives
-            sorted_non_negatives = ParallelRadixSort._radix_sort(non_negative_nums)
+            for i in range(0, len(arr)):
+                arr[i] = output[i]
+        def radix_sort(arr):
+            if not arr:
+                return
+            max1 = max(arr)
+            exp = 1
+            while max1 / exp > 1:
+                counting_sort(arr, exp)
+                exp *= 10
 
-        thread1 = threading.Thread(target=sort_negatives)
-        thread2 = threading.Thread(target=sort_non_negatives)
+        # Separar los números negativos y positivos
+        neg = [-x for x in data if x < 0]
+        non_neg = [x for x in data if x >= 0]
 
-        thread1.start()
-        thread2.start()
+        # Aplicar Radix Sort a cada subconjunto en paralelo
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = [executor.submit(radix_sort, subset) for subset in [neg, non_neg]]
+            concurrent.futures.wait(futures)
 
-        thread1.join()
-        thread2.join()
-
-        sorted_arr = [-x for x in reversed(sorted_negatives)] + sorted_non_negatives
-        return [x / factor for x in sorted_arr]
+        # Unir los resultados y ajustar los números negativos
+        return [-x for x in reversed(neg)] + non_neg
 
     @staticmethod
     def _radix_sort(arr):
@@ -192,59 +187,46 @@ class ParallelRadixSort:
 
         return sorted_arr
 
-"""# Ejemplo de uso
-arr = [0.897, -0.565, 0.656, -0.1234, 0.665, -0.3434]
-sorted_arr = ParallelRadixSort.sort(arr)
-print("Sorted array is:", sorted_arr)
-"""
-
 class ParallelCountingSort:
     @staticmethod
     @performance_logger()
-    def sort(arr, decimal_places=3):
-        if len(arr) == 0:
-            return arr
+    def sort(data):
+        # Escalamos los números para reducir el rango
+        scale_factor = 10**3
+        scaled_data = [int(x * scale_factor) for x in data]
 
-        # Escalar los números para manejar números flotantes
-        factor = 10 ** decimal_places
-        scaled_arr = [int(x * factor) for x in arr]
+        # Separamos los números negativos y no negativos
+        negative_nums = [-x for x in scaled_data if x < 0]
+        non_negative_nums = [x for x in scaled_data if x >= 0]
 
-        # Encontrar el valor mínimo y máximo
-        min_val = min(scaled_arr)
-        max_val = max(scaled_arr)
+        # Paralelizamos la ordenación de los subconjuntos
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = {
+                'negatives': executor.submit(ParallelCountingSort._optimized_counting_sort, negative_nums),
+                'non_negatives': executor.submit(ParallelCountingSort._optimized_counting_sort, non_negative_nums)
+            }
+            sorted_negatives = futures['negatives'].result()
+            sorted_non_negatives = futures['non_negatives'].result()
 
-        # Crear el arreglo de conteo
-        count_arr_length = max_val - min_val + 1
-        count_arr = [0] * count_arr_length
+        # Combinamos y desescalamos
+        combined = [-x for x in reversed(sorted_negatives)] + sorted_non_negatives
+        return [x / scale_factor for x in combined]
 
-        # Dividir el arreglo y contar en paralelo
-        def count_elements(start, end):
-            for i in range(start, end):
-                count_arr[scaled_arr[i] - min_val] += 1
+    @staticmethod
+    def _optimized_counting_sort(data):
+        if not data:
+            return data
 
-        mid = len(scaled_arr) // 2
-        thread1 = threading.Thread(target=count_elements, args=(0, mid))
-        thread2 = threading.Thread(target=count_elements, args=(mid, len(scaled_arr)))
+        # Usamos un diccionario para el conteo en lugar de una lista
+        count = {}
+        for number in data:
+            count[number] = count.get(number, 0) + 1
 
-        thread1.start()
-        thread2.start()
+        sorted_data = []
+        for number in range(min(count), max(count) + 1):
+            sorted_data.extend([number] * count.get(number, 0))
 
-        thread1.join()
-        thread2.join()
-
-        # Reconstruir el arreglo ordenado
-        sorted_arr = []
-        for i, count in enumerate(count_arr):
-            sorted_arr.extend([min_val + i] * count)
-
-        # Escalar hacia atrás y devolver
-        return [x / factor for x in sorted_arr]
-
-"""# Ejemplo de uso
-arr = [0.897, -0.565, 0.656, -0.1234, 0.665, -0.3434]
-sorted_arr = ParallelCountingSort.sort(arr)
-print("Sorted array is:", sorted_arr)
-"""
+        return sorted_data
 
 class ParallelTimSort:
     @staticmethod
@@ -284,23 +266,29 @@ class ParallelTimSort:
         result.extend(right)
         return result
 
-"""# Ejemplo de uso
-arr = [12, 11, 13, 5, 6, -7.1]
-sorted_arr = ParallelTimSort.sort(arr)
-print("Sorted array is:", sorted_arr)
-"""
-
 class ParallelExponentialSearch:
     @staticmethod
     @performance_logger()
     def search(arr, target):
-        segment_size = len(arr) // 4  # Determina el número de segmentos según la longitud del arreglo
-        futures = []
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            for i in range(0, len(arr), segment_size):
-                # Envía cada segmento del arreglo a la búsqueda exponencial en un hilo separado
-                futures.append(executor.submit(ParallelExponentialSearch._exponential_search, arr[i:i + segment_size], target))
+        if not arr:
+            return -1
 
+        if arr[0] == target:
+            return 0
+
+        # Determinar los segmentos para la búsqueda binaria
+        n = len(arr)
+        segments = []
+        i = 1
+        while i < n:
+            left = i // 2
+            right = min(i, n - 1)
+            segments.append((left, right))
+            i *= 2
+
+        # Ejecutar la búsqueda binaria en paralelo en cada segmento
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = [executor.submit(ParallelExponentialSearch._binary_search, arr, target, left, right) for left, right in segments]
             for future in concurrent.futures.as_completed(futures):
                 result = future.result()
                 if result != -1:
@@ -308,36 +296,15 @@ class ParallelExponentialSearch:
         return -1
 
     @staticmethod
-    def _exponential_search(segment, target):
-        if segment[0] == target:
-            return 0
-
-        i = 1
-        while i < len(segment) and segment[i] <= target:
-            i *= 2
-
-        # Ajuste de índices para el segmento
-        left = max(0, i // 2)
-        right = min(i, len(segment)) - 1  # Ajuste aquí
-
-        # Llamada a la búsqueda binaria con índices ajustados
-        return ParallelExponentialSearch._binary_search(segment, target, left, right)
-
-    @staticmethod
     def _binary_search(arr, target, left, right):
-        # Asegúrate de que los índices estén dentro del rango del segmento
-        if right < left:
-            return -1
-
         while left <= right:
             mid = left + (right - left) // 2
             if arr[mid] == target:
-                return mid  # Asegúrate de ajustar este índice según sea necesario
-            elif arr[mid] < target:
-                left = mid + 1
-            else:
+                return mid
+            elif arr[mid] > target:
                 right = mid - 1
-
+            else:
+                left = mid + 1
         return -1
 
 class ParallelInterpolationSearch:
@@ -361,10 +328,3 @@ class ParallelInterpolationSearch:
                 return ParallelInterpolationSearch._parallel_search(arr, low, pos - 1, target)
 
         return -1
-
-"""# Ejemplo de uso
-arr = [10, 12, 13, 16, 18, 19, 20, 21, 22, 23, 24, 33, 35, 42, 47]
-target = 18
-index = ParallelInterpolationSearch.search(arr, target)
-print(f"Element found at index: {index}")
-"""
