@@ -1,11 +1,9 @@
 from abc import ABC, abstractmethod
-import Sorting
-import Searching
-import Paralelizables
 import random
 
 # Interfaz común para todos los algoritmos
 class Algorithm(ABC):
+    test = False
     @abstractmethod
     def execute(self, data, args=None):
         pass
@@ -51,7 +49,6 @@ class DataStructureAlgorithm(Algorithm):
 class AlgorithmFactory:
     @staticmethod
     def get_algorithm(module, class_name):
-        print(class_name)
         class_method = getattr(module, class_name)
         if "Sort" in class_name:
             return SortAlgorithm(class_method)
@@ -61,7 +58,7 @@ class AlgorithmFactory:
             return DataStructureAlgorithm(class_method)
 
 # Función para ejecutar algoritmos
-def run_algorithms(arr, algorithms_array, module):
+def run_algorithms(arr, algorithms_array, module, verbose = False, test = False):
     element_to_search = random.choice(arr)
     for class_name in algorithms_array:
         algorithm = AlgorithmFactory.get_algorithm(module, class_name)
@@ -71,13 +68,8 @@ def run_algorithms(arr, algorithms_array, module):
             algorithm.execute(arr, [element_to_search])
         elif isinstance(algorithm, DataStructureAlgorithm):
             search_result = algorithm.execute(arr, [element_to_search])
-            if search_result:
-                print(f"El elemento {element_to_search} está en la estructura: {class_name}")
-            else:
-                print(f"El elemento {element_to_search} no está en la estructura: {class_name}")
-        
-
-"""# Ejemplo de uso
-arr = [12, 11, 13, 5, 6, 7]
-run_algorithms(arr, ["SkipList", "BinaryTree", "RedBlackTree"], Searching)
-"""
+            if verbose:
+                if search_result:
+                    print(f"El elemento {element_to_search} está en la estructura: {class_name}")
+                else:
+                    print(f"El elemento {element_to_search} no está en la estructura: {class_name}")
