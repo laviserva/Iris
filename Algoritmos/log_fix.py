@@ -9,6 +9,8 @@ def fix():
 
     log_data = {}
     for line in lines:
+        if not line.strip():
+            continue
         parts = line.strip().split(', ')
         algorithm = parts[0].split(': ')[1]
         time = float(parts[1].split(': ')[1].split(' ')[0])

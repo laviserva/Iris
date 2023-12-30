@@ -4,6 +4,8 @@ import sys
 import io
 import os
 
+import random
+
 import matplotlib.pyplot as plt
 from django.shortcuts import render
 import seaborn as sns
@@ -21,11 +23,7 @@ if root_path not in sys.path:
 if algoritmos_path not in sys.path:
     sys.path.append(algoritmos_path)
 
-from Algoritmos import log_fix
-from Algoritmos import Paralelizables
-from Algoritmos import Searching
-from Algoritmos import Sorting
-from Algoritmos import run_algorithms
+from analyzer.plotter import Plotter
 
 matplotlib.use('Agg')
 sns.set_theme(style="whitegrid")
@@ -81,32 +79,6 @@ def render_plot(sort_algorithms, search_algorithms, parallel_algorithms):
     if sort_algorithms == [] and search_algorithms == [] and parallel_algorithms == []:
         return base_plot()
     
-    arr = [0.897, -0.565, 0.656, -0.1234, 0.665, -0.3434]
-    if sort_algorithms != []:
-        run_algorithms.run_algorithms(arr, sort_algorithms, Sorting)
-    if search_algorithms != []:
-        run_algorithms.run_algorithms(arr, search_algorithms, Searching)
-    if parallel_algorithms != []:
-        sort_aux = [alg for alg in parallel_algorithms if "Sort" in alg]
-        search_aux = [alg for alg in parallel_algorithms if "Search" in alg]
-        if sort_aux != []:
-            run_algorithms.run_algorithms(arr, sort_aux, Paralelizables)
-        if search_aux != []:
-            run_algorithms.run_algorithms(arr, search_aux, Paralelizables)
-
-    # Limpiando los logs
-    log_fix.fix()
-    # generate plot
-
-    data = sns.load_dataset("penguins")
-
-    # Crear un regplot con Seaborn
-    plot = sns.histplot(x="bill_depth_mm", y="bill_length_mm", data=data)
-
-    # Guardar la gráfica en un buffer
-    buffer = io.BytesIO()
-    plt.savefig(buffer, format='png', dpi=300)
-    buffer.seek(0)
-    plt.close()
-
+    arr = [random.randint(0, 100) for _ in range(100)]
+    buffer = Plotter.plot(arr, sort_algorithms, search_algorithms, parallel_algorithms)
     return buffer
