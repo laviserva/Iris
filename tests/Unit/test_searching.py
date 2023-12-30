@@ -14,10 +14,11 @@ if algoritmos_path not in sys.path:
 
 from Algoritmos import Searching
 from tests.Fixtures.search_data import data
+from tests.manage_files import handle_exception
 
 class TestSearching(unittest.TestCase):
+    @handle_exception()
     def test_searching_with_int_numbers(self):
-        # Preparando estructura de datos
         skip_list = Searching.SkipList()
         binary_tree = Searching.BinaryTree()
         redblack_tree = Searching.RedBlackTree()
@@ -36,8 +37,8 @@ class TestSearching(unittest.TestCase):
         self.assertEqual(data.enteros_chosed, binary_tree.search(data.enteros_chosed).val)
         self.assertEqual(data.enteros_chosed, redblack_tree.search(data.enteros_chosed).data)
     
+    @handle_exception()
     def test_searching_with_real_numbers(self):
-        # Preparando estructura de datos
         skip_list = Searching.SkipList()
         binary_tree = Searching.BinaryTree()
         redblack_tree = Searching.RedBlackTree()
@@ -56,8 +57,8 @@ class TestSearching(unittest.TestCase):
         self.assertEqual(data.flotantes_chosed, binary_tree.search(data.flotantes_chosed).val)
         self.assertEqual(data.flotantes_chosed, redblack_tree.search(data.flotantes_chosed).data)
 
+    @handle_exception()
     def test_searching_with_flotantes_de_precision_numbers(self):
-        # Preparando estructura de datos
         skip_list = Searching.SkipList()
         binary_tree = Searching.BinaryTree()
         redblack_tree = Searching.RedBlackTree()
@@ -76,8 +77,8 @@ class TestSearching(unittest.TestCase):
         self.assertEqual(data.flotantes_de_precision_chosed, binary_tree.search(data.flotantes_de_precision_chosed).val)
         self.assertEqual(data.flotantes_de_precision_chosed, redblack_tree.search(data.flotantes_de_precision_chosed).data)
     
+    @handle_exception()
     def test_searching_with_int_numbers_fail(self):
-        # Preparando estructura de datos
         skip_list = Searching.SkipList()
         binary_tree = Searching.BinaryTree()
         redblack_tree = Searching.RedBlackTree()
@@ -96,8 +97,8 @@ class TestSearching(unittest.TestCase):
         self.assertEqual(-1, binary_tree.search(data.no_chosed))
         self.assertEqual(-1, redblack_tree.search(data.no_chosed))
     
+    @handle_exception()
     def test_searching_with_real_numbers_fail(self):
-        # Preparando estructura de datos
         skip_list = Searching.SkipList()
         binary_tree = Searching.BinaryTree()
         redblack_tree = Searching.RedBlackTree()
@@ -116,8 +117,8 @@ class TestSearching(unittest.TestCase):
         self.assertEqual(-1, binary_tree.search(data.no_chosed))
         self.assertEqual(-1, redblack_tree.search(data.no_chosed))
 
+    @handle_exception()
     def test_searching_with_flotantes_de_precision_numbers_fail(self):
-        # Preparando estructura de datos
         skip_list = Searching.SkipList()
         binary_tree = Searching.BinaryTree()
         redblack_tree = Searching.RedBlackTree()
