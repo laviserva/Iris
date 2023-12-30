@@ -14,8 +14,11 @@ if algoritmos_path not in sys.path:
 
 from Algoritmos import Sorting
 from tests.Fixtures.sorting_data import data
+from tests.manage_files import handle_exception
 
 class TestSorting(unittest.TestCase):
+    
+    @handle_exception()
     def test_sorting_with_int_numbers(self):
         self.assertEqual(data.enteros_sorted, Sorting.BubbleSort.sort(data.enteros_unsorted))
         self.assertEqual(data.enteros_sorted, Sorting.QuickSort.sort(data.enteros_unsorted))
@@ -28,6 +31,7 @@ class TestSorting(unittest.TestCase):
         self.assertEqual(data.enteros_sorted, Sorting.CountingSort.sort(data.enteros_unsorted))
         self.assertEqual(data.enteros_sorted, Sorting.TimSort.sort(data.enteros_unsorted))
 
+    @handle_exception()
     def test_sorting_with_real_numbers(self):
         self.assertEqual(data.flotantes_sorted, Sorting.BubbleSort.sort(data.flotantes_unsorted))
         self.assertEqual(data.flotantes_sorted, Sorting.QuickSort.sort(data.flotantes_unsorted))
@@ -40,6 +44,7 @@ class TestSorting(unittest.TestCase):
         self.assertEqual(data.flotantes_sorted, Sorting.CountingSort.sort(data.flotantes_unsorted))
         self.assertEqual(data.flotantes_sorted, Sorting.TimSort.sort(data.flotantes_unsorted))
 
+    @handle_exception()
     def test_sorting_with_float_presition(self):
         counting_sort_limt_float_mem_error = [round(d, 3) for d in data.flotantes_de_precision_sorted]
         
