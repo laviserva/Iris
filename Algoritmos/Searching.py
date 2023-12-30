@@ -3,19 +3,69 @@ import random
 
 from performanzer import performance_logger
 
+from typing import List
+
 class LinearSearch:
+    """
+    Implementa el algoritmo de búsqueda lineal.
+
+    Complejidad:
+    - Tiempo: O(n), donde n es el número de elementos en la lista.
+    - Espacio: O(1), ya que no se necesita espacio adicional.
+
+    Funcionamiento:
+    - Recorre cada elemento de la lista y lo compara con el objetivo.
+    - Si encuentra un elemento que coincide con el objetivo, devuelve su índice.
+    - Si no encuentra el objetivo, devuelve -1.
+    """
+
     @staticmethod
     @performance_logger()
-    def search(arr, target):
+    def search(arr: List[int], target: int) -> int:
+        """
+        Realiza una búsqueda lineal en una lista para encontrar un elemento objetivo.
+
+        Args:
+            arr (List[int]): Lista de enteros en la que buscar.
+            target (int): Elemento objetivo a buscar.
+
+        Returns:
+            int: El índice del elemento objetivo si se encuentra, de lo contrario -1.
+        """
         for i in range(len(arr)):
             if arr[i] == target:
                 return i
         return -1
 
 class BinarySearch:
+    """
+    Implementa el algoritmo de búsqueda binaria.
+
+    Complejidad:
+    - Tiempo: O(log n), donde n es el número de elementos en la lista.
+    - Espacio: O(1), ya que la búsqueda se realiza in situ sin necesidad de espacio adicional.
+
+    Funcionamiento:
+    - Divide repetidamente el rango de búsqueda a la mitad.
+    - Compara el elemento medio del rango con el objetivo.
+    - Ajusta el rango de búsqueda en función de la comparación hasta encontrar el objetivo o hasta que el rango esté vacío.
+
+    Nota:
+    - La lista proporcionada debe estar ordenada para que el algoritmo funcione correctamente.
+    """
     @staticmethod
     @performance_logger()
-    def search(arr, target):
+    def search(arr: List[int], target: int) -> int:
+        """
+        Realiza una búsqueda binaria en una lista ordenada para encontrar un elemento objetivo.
+
+        Args:
+            arr (List[int]): Lista ordenada de enteros en la que buscar.
+            target (int): Elemento objetivo a buscar.
+
+        Returns:
+            int: El índice del elemento objetivo si se encuentra, de lo contrario -1.
+        """
         left, right = 0, len(arr) - 1
         while left <= right:
             mid = left + (right - left) // 2
@@ -28,9 +78,34 @@ class BinarySearch:
         return -1
 
 class JumpSearch:
+    """
+    Implementa el algoritmo de búsqueda por salto (Jump Search).
+
+    Complejidad:
+    - Tiempo: O(√n), donde n es el número de elementos en la lista.
+    - Espacio: O(1), ya que la búsqueda se realiza in situ sin necesidad de espacio adicional.
+
+    Funcionamiento:
+    - Realiza saltos de tamaño √n a través de la lista.
+    - Una vez que se encuentra el bloque donde podría estar el objetivo, realiza una búsqueda lineal en ese bloque.
+    - Si encuentra el objetivo, devuelve su índice; si no, devuelve -1.
+
+    Nota:
+    - La lista proporcionada debe estar ordenada para que el algoritmo funcione correctamente.
+    """
     @staticmethod
     @performance_logger()
-    def search(arr, target):
+    def search(arr: List[int], target: int) -> int:
+        """
+        Realiza una búsqueda por salto en una lista ordenada para encontrar un elemento objetivo.
+
+        Args:
+            arr (List[int]): Lista ordenada de enteros en la que buscar.
+            target (int): Elemento objetivo a buscar.
+
+        Returns:
+            int: El índice del elemento objetivo si se encuentra, de lo contrario -1.
+        """
         n = len(arr)
         step = math.sqrt(n)
 
@@ -52,10 +127,34 @@ class JumpSearch:
         return -1
 
 class ExponentialSearch:
-    """Realiza una búsqueda exponencial en un arreglo ordenado mediante binary search"""
+    """
+    Realiza una búsqueda exponencial en un arreglo ordenado mediante búsqueda binaria.
+
+    Complejidad:
+    - Tiempo: O(log n), donde n es el número de elementos en la lista.
+    - Espacio: O(1), ya que la búsqueda se realiza in situ sin necesidad de espacio adicional.
+
+    Funcionamiento:
+    - Encuentra un rango donde podría estar el elemento objetivo aumentando exponencialmente el índice.
+    - Una vez encontrado el rango, realiza una búsqueda binaria en ese rango.
+    - Si encuentra el objetivo, devuelve su índice; si no, devuelve -1.
+
+    Nota:
+    - La lista proporcionada debe estar ordenada para que el algoritmo funcione correctamente.
+    """
     @staticmethod
     @performance_logger()
-    def search(arr, target):
+    def search(arr: List[int], target: int) -> int:
+        """
+        Realiza una búsqueda exponencial en una lista ordenada para encontrar un elemento objetivo.
+
+        Args:
+            arr (List[int]): Lista ordenada de enteros en la que buscar.
+            target (int): Elemento objetivo a buscar.
+
+        Returns:
+            int: El índice del elemento objetivo si se encuentra, de lo contrario -1.
+        """
         if not arr:
             return -1
 
@@ -72,7 +171,19 @@ class ExponentialSearch:
 
         return ExponentialSearch._binary_search(arr, target, left, right)
 
-    def _binary_search(arr, target, left, right):
+    def _binary_search(arr: List[int], target: int, left: int, right: int) -> int:
+        """
+        Método auxiliar para realizar una búsqueda binaria en un segmento de la lista.
+
+        Args:
+            arr (List[int]): Lista ordenada de enteros.
+            target (int): Elemento objetivo a buscar.
+            left (int): Índice inferior del segmento.
+            right (int): Índice superior del segmento.
+
+        Returns:
+            int: Índice del elemento objetivo en el segmento, o -1 si no se encuentra.
+        """
         while left <= right:
             mid = left + (right - left) // 2
             if arr[mid] == target:
@@ -85,9 +196,34 @@ class ExponentialSearch:
         return -1
 
 class InterpolationSearch:
+    """
+    Implementa el algoritmo de búsqueda por interpolación.
+
+    Complejidad:
+    - Tiempo: O(log log n) en el mejor de los casos para distribuciones uniformes, O(n) en el peor de los casos.
+    - Espacio: O(1), ya que la búsqueda se realiza in situ sin necesidad de espacio adicional.
+
+    Funcionamiento:
+    - Estima la posición del elemento objetivo utilizando una fórmula de interpolación.
+    - Compara el elemento en la posición estimada con el objetivo.
+    - Ajusta los índices de búsqueda según sea necesario y repite el proceso.
+    
+    Nota:
+    - La lista proporcionada debe estar ordenada y tener una distribución uniforme de los valores para que el algoritmo sea eficiente.
+    """
     @staticmethod
     @performance_logger()
-    def search(arr, target):
+    def search(arr: List[int], target: int) -> int:
+        """
+        Realiza una búsqueda por interpolación en una lista ordenada para encontrar un elemento objetivo.
+
+        Args:
+            arr (List[int]): Lista ordenada de enteros en la que buscar.
+            target (int): Elemento objetivo a buscar.
+
+        Returns:
+            int: El índice del elemento objetivo si se encuentra, de lo contrario -1.
+        """
         low = 0
         high = len(arr) - 1
 
@@ -111,29 +247,78 @@ class InterpolationSearch:
 
 ### Skip list
 class Node_SkipList:
-    """Clase para representar un nodo en la Skip List"""
+    """Clase para representar un nodo en la Skip List
+    
+    Atributos:
+    - key (int): La clave del nodo.
+    - forward (List[Node_SkipList]): Lista de punteros a los nodos siguientes en cada nivel.
+    """
     def __init__(self, key, level):
         self.key = key
         self.forward = [None] * (level + 1)
 
 class SkipList:
-    """Clase para representar la Skip List"""
+    """
+    Clase para representar una Skip List.
+
+    Atributos:
+    - MAX_LEVEL (int): El número máximo de niveles en la Skip List.
+    - p (float): La fracción que determina la probabilidad de incrementar el nivel.
+    - header (Node_SkipList): Nodo ficticio que actúa como cabecera de la Skip List.
+    - level (int): El nivel actual de la Skip List.
+
+    Métodos:
+    - __init__: Constructor de la Skip List.
+    - create_node: Crea un nuevo nodo para la Skip List.
+    - random_level: Calcula un nivel aleatorio para un nuevo nodo.
+    - insert: Inserta un nuevo elemento en la Skip List.
+    - search: Busca un elemento en la Skip List.
+    """
     def __init__(self, max_level=3, p=0.5):
+        """
+        Inicializa una Skip List.
+
+        Args:
+            max_level (int): El número máximo de niveles en la Skip List.
+            p (float): La fracción que determina la probabilidad de incrementar el nivel.
+        """
         self.MAX_LEVEL = max_level
         self.p = p
         self.header = self.create_node(self.MAX_LEVEL, -1)
         self.level = 0
 
-    def create_node(self, lvl, key):
+    def create_node(self, lvl: int, key: int):
+        """
+        Crea un nuevo nodo para la Skip List.
+
+        Args:
+            lvl (int): El nivel del nodo.
+            key (int): La clave del nodo.
+
+        Returns:
+            Node_SkipList: Un nuevo nodo de Skip List.
+        """
         return Node_SkipList(key, lvl)
 
-    def random_level(self):
+    def random_level(self) -> int:
+        """
+        Genera un nivel aleatorio para un nuevo nodo.
+
+        Returns:
+            int: Un nivel aleatorio.
+        """
         lvl = 0
         while random.random() < self.p and lvl < self.MAX_LEVEL:
             lvl += 1
         return lvl
 
-    def insert(self, key):
+    def insert(self, key: int) -> None:
+        """
+        Inserta un nuevo elemento en la Skip List.
+
+        Args:
+            key (int): La clave del elemento a insertar.
+        """
         update = [None] * (self.MAX_LEVEL + 1)
         current = self.header
 
@@ -159,7 +344,16 @@ class SkipList:
                 update[i].forward[i] = n
 
     @performance_logger()
-    def search(self, key):
+    def search(self, key: int):
+        """
+        Busca un elemento en la Skip List.
+
+        Args:
+            key (int): La clave del elemento a buscar.
+
+        Returns:
+            Node_SkipList | int: El nodo que contiene la clave, o -1 si no se encuentra.
+        """
         current = self.header
         for i in range(self.level, -1, -1):
             while current.forward[i] and current.forward[i].key < key:
@@ -171,22 +365,61 @@ class SkipList:
         return -1
 
 class Node_BS:
+    """
+    Nodo de un árbol binario de búsqueda.
+
+    Atributos:
+    - val (int): El valor almacenado en el nodo.
+    - left (Node_BS): El hijo izquierdo del nodo.
+    - right (Node_BS): El hijo derecho del nodo.
+    """
     def __init__(self, key):
         self.left = None
         self.right = None
         self.val = key
 
 class BinaryTree:
+    """
+    Implementa un árbol binario de búsqueda.
+
+    Complejidad:
+    - Inicialización (__init__): O(1) en tiempo y espacio.
+    - Insertar (insert): O(h) en tiempo, donde h es la altura del árbol.
+    - Buscar (search): O(h) en tiempo, donde h es la altura del árbol.
+
+    Atributos:
+    - root (Node_BS): La raíz del árbol.
+
+    Métodos:
+    - __init__: Constructor del árbol binario de búsqueda.
+    - insert: Inserta un nuevo elemento en el árbol.
+    - _insert_recursive: Método auxiliar para insertar elementos de manera recursiva.
+    - search: Busca un elemento en el árbol.
+    - _search_recursive: Método auxiliar para buscar elementos de manera recursiva.
+    """
     def __init__(self):
         self.root = None
 
-    def insert(self, key):
+    def insert(self, key: int) -> None:
+        """
+        Inserta un nuevo elemento en el árbol.
+
+        Args:
+            key (int): La clave del elemento a insertar.
+        """
         if self.root is None:
             self.root = Node_BS(key)
         else:
             self._insert_recursive(self.root, key)
 
-    def _insert_recursive(self, node, key):
+    def _insert_recursive(self, node: Node_BS, key: int) -> None:
+        """
+        Método auxiliar para insertar un elemento de manera recursiva.
+
+        Args:
+            node (Node_BS): El nodo actual en el árbol.
+            key (int): La clave del elemento a insertar.
+        """
         if key < node.val:
             if node.left is None:
                 node.left = Node_BS(key)
@@ -199,10 +432,29 @@ class BinaryTree:
                 self._insert_recursive(node.right, key)
 
     @performance_logger()
-    def search(self, key):
+    def search(self, key: int) -> Node_BS | int:
+        """
+        Busca un elemento en el árbol.
+
+        Args:
+            key (int): La clave del elemento a buscar.
+
+        Returns:
+            Node_BS | int: El nodo que contiene la clave, o -1 si no se encuentra.
+        """
         return self._search_recursive(self.root, key)
 
-    def _search_recursive(self, node, key):
+    def _search_recursive(self, node: Node_BS, key: int) -> Node_BS | int:
+        """
+        Método auxiliar para buscar un elemento de manera recursiva.
+
+        Args:
+            node (Node_BS): El nodo actual en el árbol.
+            key (int): La clave del elemento a buscar.
+
+        Returns:
+            Node_BS | int: El nodo que contiene la clave, o -1 si no se encuentra.
+        """
         if not node:
             return -1
         if node.val == key:
@@ -212,6 +464,16 @@ class BinaryTree:
         return self._search_recursive(node.right, key)
 
 class Node_RB:
+    """
+    Nodo de un redblack tree.
+
+    Atributos:
+    - data (int): El valor almacenado en el nodo.
+    - color (str): El color del nodo ('RED' o 'BLACK').
+    - parent (Node_RB): El nodo padre.
+    - left (Node_RB): El hijo izquierdo del nodo.
+    - right (Node_RB): El hijo derecho del nodo.
+    """
     def __init__(self, data, color="RED"):
         self.data = data
         self.color = color
@@ -220,6 +482,24 @@ class Node_RB:
         self.right = None
 
 class RedBlackTree:
+    """
+    Implementa un árbol rojo-negro.
+
+    Atributos:
+    - TNULL (Node_RB): Nodo especial que representa el final de un camino en el árbol.
+    - root (Node_RB): La raíz del árbol.
+
+    Métodos:
+    Complejidad:
+    - Inicialización (__init__): O(1) en tiempo y espacio.
+    - Insertar (insert): O(log n) en tiempo.
+    - Corrección de inserción (fix_insert): O(log n) en tiempo.
+    - Rotación izquierda (left_rotate): O(1) en tiempo.
+    - Rotación derecha (right_rotate): O(1) en tiempo.
+    - Buscar (search): O(log n) en tiempo.
+    - Eliminar (delete_node): O(log n) en tiempo.
+    - Corrección de eliminación (fix_delete): O(log n) en tiempo.
+    """
     def __init__(self):
         self.TNULL = Node_RB(0)
         self.TNULL.color = "BLACK"
@@ -328,8 +608,17 @@ class RedBlackTree:
         x.parent = y
 
     @performance_logger()
-    def search(self, k):
-        return self._search_helper(self.root, k)
+    def search(self, key: int) -> Node_RB | int:
+        """
+        Busca un elemento en el árbol.
+
+        Args:
+            key (int): La clave del elemento a buscar.
+
+        Returns:
+            Node_RB | int: El nodo que contiene la clave, o -1 si no se encuentra.
+        """
+        return self._search_helper(self.root, key)
 
     def _search_helper(self, node, key):
         if node == self.TNULL or key == node.data:

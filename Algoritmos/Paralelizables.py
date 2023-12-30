@@ -2,12 +2,36 @@ import threading
 import math
 
 import concurrent.futures
+from typing import List
 from performanzer import performance_logger
 
 class ParallelQuickSort:
+    """
+    Ordena una lista utilizando el algoritmo QuickSort en paralelo.
+
+    Complejidad:
+    - Tiempo promedio: O(n log n), donde n es el número de elementos.
+    - Espacio: O(n), debido a las listas adicionales 'less' y 'greater'.
+
+    Funcionamiento:
+    - Divide la lista en dos sublistas basadas en un pivote.
+    - Ordena las sublistas en paralelo utilizando hilos.
+    - Combina las sublistas ordenadas y el pivote.
+
+    Paralelización:
+    - Utiliza 2 hilos en cada nivel de la recursión.
+    - El número de hilos activos en promedio depende de la profundidad de la recursión.
+    """
     @performance_logger()
     @staticmethod
-    def sort(arr):
+    def sort(arr: List[int]) -> List[int]:
+        """
+        Args:
+            arr (List[int]): Lista de enteros a ordenar.
+
+        Returns:
+            List[int]: Lista ordenada de enteros.
+        """
         if len(arr) <= 1:
             return arr
         else:
@@ -30,25 +54,53 @@ class ParallelQuickSort:
             return sorted_sublists[0] + [pivot] + sorted_sublists[1]
 
 class ParallelMergeSort:
+    """
+    Ordena una lista utilizando el algoritmo MergeSort en paralelo.
+
+    Complejidad:
+    - Tiempo promedio: O(n log n), donde n es el número de elementos.
+    - Espacio: O(n), debido a las sublistas adicionales creadas durante la división.
+
+    Funcionamiento:
+    - Divide la lista en dos mitades.
+    - Ordena cada mitad en paralelo utilizando hilos.
+    - Combina las dos mitades ordenadas en una lista final ordenada.
+
+    Paralelización:
+    - Utiliza 2 hilos en cada nivel de la división para ordenar las mitades.
+    - El número de hilos activos depende de la profundidad de la división.
+    """
+
     @staticmethod
     @performance_logger()
-    def sort(arr):
+    def sort(arr: List[int]) -> List[int]:
+        """
+        Ordena una lista de enteros utilizando el algoritmo MergeSort en paralelo.
+
+        Args:
+            arr (List[int]): Lista de enteros a ordenar.
+
+        Returns:
+            List[int]: Lista ordenada de enteros.
+        """
         if len(arr) > 1:
+            # Dividir la lista en dos mitades
             mid = len(arr) // 2
             left_half = arr[:mid]
             right_half = arr[mid:]
 
-            # Crear threads para ordenar las mitades
+            # Crear hilos para ordenar las mitades en paralelo
             left_thread = threading.Thread(target=lambda: ParallelMergeSort.sort(left_half))
             right_thread = threading.Thread(target=lambda: ParallelMergeSort.sort(right_half))
 
             left_thread.start()
             right_thread.start()
 
+            # Esperar a que los hilos terminen
             left_thread.join()
             right_thread.join()
 
-            # Merge
+            # Combinar las mitades ordenadas
             i = j = k = 0
             while i < len(left_half) and j < len(right_half):
                 if left_half[i] < right_half[j]:
@@ -59,6 +111,7 @@ class ParallelMergeSort:
                     j += 1
                 k += 1
 
+            # Combinar los elementos restantes
             while i < len(left_half):
                 arr[k] = left_half[i]
                 i += 1
@@ -68,29 +121,55 @@ class ParallelMergeSort:
                 arr[k] = right_half[j]
                 j += 1
                 k += 1
-
         return arr
 
 class ParallelBucketSort:
+    """
+    Ordena una lista utilizando el algoritmo Bucket Sort en paralelo.
+
+    Complejidad:
+    - Tiempo promedio: O(n + k), donde n es el número de elementos y k el número de buckets.
+    - Espacio: O(n * k), debido a la creación de listas adicionales para los buckets.
+
+    Funcionamiento:
+    - Divide los elementos en diferentes 'buckets' basándose en un rango.
+    - Ordena cada bucket en paralelo utilizando hilos.
+    - Combina los buckets ordenados en una lista final ordenada.
+
+    Paralelización:
+    - Crea un hilo por cada bucket para realizar el ordenamiento.
+    - El número de hilos es igual al número de buckets creados.
+    """
+
     @staticmethod
     @performance_logger()
-    def sort(arr, bucket_size=5):
+    def sort(arr: List[int], bucket_size: int = 5) -> List[int]:
+        """
+        Ordena una lista de enteros utilizando el algoritmo Bucket Sort en paralelo.
+
+        Args:
+            arr (List[int]): Lista de enteros a ordenar.
+            bucket_size (int): Tamaño de cada bucket.
+
+        Returns:
+            List[int]: Lista ordenada de enteros.
+        """
         if len(arr) == 0:
             return arr
 
-        # Determinar mínimo y máximo
+        # Determinar los valores mínimo y máximo de la lista
         min_value, max_value = min(arr), max(arr)
 
-        # Inicializar buckets
+        # Inicializar los buckets
         bucket_count = math.ceil((max_value - min_value) / bucket_size)
         buckets = [[] for _ in range(bucket_count)]
 
-        # Distribuir elementos en buckets
+        # Distribuir los elementos en los buckets
         for i in range(len(arr)):
             index = math.floor((arr[i] - min_value) / bucket_size)
             buckets[index].append(arr[i])
 
-        # Ordenar los buckets y concatenar
+        # Ordenar los buckets en paralelo y concatenar
         sorted_arr = []
         threads = []
         for bucket in buckets:
@@ -102,15 +181,43 @@ class ParallelBucketSort:
         for thread in threads:
             thread.join()
 
+        # Concatenar los buckets ordenados
         for bucket in buckets:
             sorted_arr.extend(bucket)
 
         return sorted_arr
 
+
 class ParallelRadixSort:
+    """
+    Ordena una lista utilizando el algoritmo Radix Sort en paralelo.
+
+    Complejidad:
+    - Tiempo promedio: O(d*(n+b)), donde n es el número de elementos, d es el número de dígitos y b es la base (en este caso, 10).
+    - Espacio: O(n + b), debido a la creación de listas adicionales para el conteo y la salida.
+
+    Funcionamiento:
+    - Divide los elementos en números negativos y no negativos.
+    - Aplica Radix Sort a cada subconjunto en paralelo.
+    - Combina los resultados para obtener la lista ordenada final.
+
+    Paralelización:
+    - Utiliza hilos para ordenar en paralelo los números negativos y no negativos.
+    """
     @staticmethod
     @performance_logger()
-    def sort(data):
+    def sort(data: List[int]) -> List[int]:
+        """
+        Ordena una lista de enteros utilizando el algoritmo Radix Sort en paralelo.
+
+        Args:
+            data (List[int]): Lista de enteros a ordenar.
+
+        Returns:
+            List[int]: Lista ordenada de enteros.
+        """
+
+        # Función interna para ordenar basado en un dígito específico
         def counting_sort(arr, exp1):
             n = len(arr)
             output = [0] * n
@@ -132,6 +239,7 @@ class ParallelRadixSort:
 
             for i in range(0, len(arr)):
                 arr[i] = output[i]
+        # Funcion interna para realizar el Radix Sort
         def radix_sort(arr):
             if not arr:
                 return
@@ -153,44 +261,35 @@ class ParallelRadixSort:
         # Unir los resultados y ajustar los números negativos
         return [-x for x in reversed(neg)] + non_neg
 
-    @staticmethod
-    def _radix_sort(arr):
-        if len(arr) == 0:
-            return arr
-
-        max_num = max(arr)
-        max_digits = int(math.log10(max_num)) + 1 if max_num > 0 else 1
-
-        for digit in range(max_digits):
-            arr = ParallelRadixSort._counting_sort_for_digit(arr, digit)
-
-        return arr
-
-    @staticmethod
-    def _counting_sort_for_digit(arr, digit):
-        sorted_arr = [0] * len(arr)
-        count = [0] * 10
-
-        for num in arr:
-            index = (num // 10 ** digit) % 10
-            count[index] += 1
-
-        for i in range(1, 10):
-            count[i] += count[i - 1]
-
-        i = len(arr) - 1
-        while i >= 0:
-            index = (arr[i] // 10 ** digit) % 10
-            sorted_arr[count[index] - 1] = arr[i]
-            count[index] -= 1
-            i -= 1
-
-        return sorted_arr
-
 class ParallelCountingSort:
+    """
+    Ordena una lista utilizando el algoritmo Counting Sort en paralelo.
+
+    Complejidad:
+    - Tiempo promedio: O(n + k), donde n es el número de elementos y k es el rango de los valores.
+    - Espacio: O(n + k), debido a la creación de estructuras adicionales para el conteo y la salida.
+
+    Funcionamiento:
+    - Escala los números para reducir el rango.
+    - Divide los elementos en números negativos y no negativos.
+    - Aplica Counting Sort a cada subconjunto en paralelo.
+    - Combina los resultados y los desescala para obtener la lista ordenada final.
+
+    Paralelización:
+    - Utiliza hilos para ordenar en paralelo los números negativos y no negativos.
+    """
     @staticmethod
     @performance_logger()
-    def sort(data):
+    def sort(data: List[float]) -> List[float]:
+        """
+        Ordena una lista de números flotantes utilizando el algoritmo Counting Sort en paralelo.
+
+        Args:
+            data (List[float]): Lista de números flotantes a ordenar.
+
+        Returns:
+            List[float]: Lista ordenada de números flotantes.
+        """
         # Escalamos los números para reducir el rango
         scale_factor = 10**3
         scaled_data = [int(x * scale_factor) for x in data]
@@ -213,7 +312,16 @@ class ParallelCountingSort:
         return [x / scale_factor for x in combined]
 
     @staticmethod
-    def _optimized_counting_sort(data):
+    def _optimized_counting_sort(data: List[int]) -> List[int]:
+        """
+        Método de ayuda para realizar un Counting Sort optimizado.
+
+        Args:
+            data (List[int]): Lista de enteros a ordenar.
+
+        Returns:
+            List[int]: Lista ordenada de enteros.
+        """
         if not data:
             return data
 
@@ -229,9 +337,33 @@ class ParallelCountingSort:
         return sorted_data
 
 class ParallelTimSort:
+    """
+    Ordena una lista utilizando el algoritmo TimSort en paralelo.
+
+    Complejidad:
+    - Tiempo promedio: O(n log n), donde n es el número de elementos.
+    - Espacio: O(n), ya que TimSort requiere espacio adicional para la fusión de segmentos.
+
+    Funcionamiento:
+    - Divide la lista en dos segmentos.
+    - Ordena cada segmento en paralelo.
+    - Fusiona los segmentos ordenados para obtener la lista ordenada final.
+
+    Paralelización:
+    - Utiliza hilos para ordenar en paralelo los dos segmentos de la lista.
+    """
     @staticmethod
     @performance_logger()
     def sort(arr):
+        """
+        Ordena una lista de enteros utilizando el algoritmo TimSort en paralelo.
+
+        Args:
+            arr (List[int]): Lista de enteros a ordenar.
+
+        Returns:
+            List[int]: Lista ordenada de enteros.
+        """
         if len(arr) <= 1:
             return arr
 
@@ -255,7 +387,16 @@ class ParallelTimSort:
 
     @staticmethod
     def _merge(left, right):
-        # Función de fusión para Merge Sort
+        """
+        Método auxiliar para fusionar dos segmentos ordenados.
+
+        Args:
+            left (List[int]): Segmento izquierdo ordenado.
+            right (List[int]): Segmento derecho ordenado.
+
+        Returns:
+            List[int]: Lista resultante de la fusión de los segmentos.
+        """
         result = []
         while left and right:
             if left[0] < right[0]:
@@ -267,9 +408,33 @@ class ParallelTimSort:
         return result
 
 class ParallelExponentialSearch:
+    """
+    Realiza una búsqueda exponencial en paralelo en una lista ordenada.
+
+    Complejidad:
+    - Tiempo promedio: O(log n), donde n es el número de elementos en la lista.
+    - Espacio: O(1), ya que la búsqueda no requiere espacio adicional significativo.
+
+    Funcionamiento:
+    - Encuentra rangos de índices donde el valor objetivo podría estar mediante búsqueda exponencial.
+    - Realiza una búsqueda binaria en paralelo en cada uno de estos rangos.
+
+    Paralelización:
+    - Utiliza múltiples hilos para realizar búsquedas binarias en diferentes segmentos de la lista simultáneamente.
+    """
     @staticmethod
     @performance_logger()
     def search(arr, target):
+        """
+        Busca un elemento en una lista ordenada utilizando la búsqueda exponencial en paralelo.
+
+        Args:
+            arr (List[int]): Lista ordenada de enteros donde buscar.
+            target (int): Elemento objetivo a buscar.
+
+        Returns:
+            int: Índice del elemento objetivo en la lista, o -1 si no se encuentra.
+        """
         if not arr:
             return -1
 
@@ -297,6 +462,18 @@ class ParallelExponentialSearch:
 
     @staticmethod
     def _binary_search(arr, target, left, right):
+        """
+        Realiza una búsqueda binaria en un segmento de la lista.
+
+        Args:
+            arr (List[int]): Lista ordenada de enteros.
+            target (int): Elemento objetivo a buscar.
+            left (int): Índice izquierdo del segmento.
+            right (int): Índice derecho del segmento.
+
+        Returns:
+            int: Índice del elemento objetivo en el segmento, o -1 si no se encuentra.
+        """
         while left <= right:
             mid = left + (right - left) // 2
             if arr[mid] == target:
@@ -308,13 +485,50 @@ class ParallelExponentialSearch:
         return -1
 
 class ParallelInterpolationSearch:
+    """
+    Realiza una búsqueda por interpolación en una lista ordenada.
+
+    Complejidad:
+    - Tiempo promedio: O(log log n) para distribuciones uniformes, O(n) en el peor de los casos.
+    - Espacio: O(1), ya que la búsqueda no requiere espacio adicional significativo.
+
+    Funcionamiento:
+    - Calcula una posición probable del objetivo mediante una fórmula de interpolación.
+    - Compara el objetivo con el elemento en la posición calculada.
+    - Ajusta los índices de búsqueda según sea necesario y repite el proceso.
+
+    Paralelización:
+    - Aunque el nombre sugiere paralelización, esta implementación actual es recursiva y no paralela.
+    """
     @staticmethod
     @performance_logger()
-    def search(arr, target):
+    def search(arr: List[int], target: int) -> int:
+        """
+        Busca un elemento en una lista ordenada utilizando la búsqueda por interpolación.
+
+        Args:
+            arr (List[int]): Lista ordenada de enteros donde buscar.
+            target (int): Elemento objetivo a buscar.
+
+        Returns:
+            int: Índice del elemento objetivo en la lista, o -1 si no se encuentra.
+        """
         return ParallelInterpolationSearch._parallel_search(arr, 0, len(arr) - 1, target)
 
     @staticmethod
-    def _parallel_search(arr, low, high, target):
+    def _parallel_search(arr: List[int], low: int, high: int, target: int) -> int:
+        """
+        Método auxiliar para realizar una búsqueda por interpolación.
+
+        Args:
+            arr (List[int]): Lista ordenada de enteros.
+            low (int): Índice inferior del segmento de búsqueda.
+            high (int): Índice superior del segmento de búsqueda.
+            target (int): Elemento objetivo a buscar.
+
+        Returns:
+            int: Índice del elemento objetivo en el segmento, o -1 si no se encuentra.
+        """
         if low <= high and target >= arr[low] and target <= arr[high]:
             # Interpolación para encontrar la posición predicha
             pos = low + int(((float(high - low) / (arr[high] - arr[low])) * (target - arr[low])))
