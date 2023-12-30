@@ -2,7 +2,6 @@ import unittest
 import os
 import sys
 
-# Asegurando que los módulos del proyecto están accesibles
 root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 algoritmos_path = os.path.join(root_path, 'Algoritmos')
 
@@ -15,9 +14,11 @@ if algoritmos_path not in sys.path:
 from Algoritmos import Paralelizables
 from tests.Fixtures.sorting_data import data as sorting_data
 from tests.Fixtures.search_data import data as search_data
+from tests.manage_files import handle_exception
 
 class TestParalelizables(unittest.TestCase):
 
+    @handle_exception()
     def test_sort_with_multiple_algorithms(self):
         algorithms = [
             Paralelizables.ParallelQuickSort,
@@ -51,6 +52,7 @@ class TestParalelizables(unittest.TestCase):
                         algo.sort(sorting_data.flotantes_de_precision_unsorted.copy())
                     )
 
+    @handle_exception()
     def test_search_with_multiple_algorithms(self):
         algorithms = [
             Paralelizables.ParallelExponentialSearch,
