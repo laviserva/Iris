@@ -6,6 +6,8 @@ from typing import List
 from performanzer import performance_logger
 
 class ParallelQuickSort:
+    Time_Complexity = "O(n log n)"
+    Space_Complexity = "O(n)"
     """
     Ordena una lista utilizando el algoritmo QuickSort en paralelo.
 
@@ -22,6 +24,42 @@ class ParallelQuickSort:
     - Utiliza 2 hilos en cada nivel de la recursión.
     - El número de hilos activos en promedio depende de la profundidad de la recursión.
     """
+    @staticmethod
+    def _parallel_sort(arr, depth=0, max_depth=3):
+        if len(arr) <= 1:
+            return arr
+        elif depth >= max_depth:  # Usa QuickSort secuencial más allá de cierta profundidad
+            return ParallelQuickSort._sequential_sort(arr)
+
+        pivot = arr[0]
+        less = [x for x in arr[1:] if x <= pivot]
+        greater = [x for x in arr[1:] if x > pivot]
+
+        # Ordenar en paralelo hasta cierta profundidad
+        sorted_sublists = [None, None]
+        threads = []
+
+        for i, sublist in enumerate([less, greater]):
+            thread = threading.Thread(target=lambda idx, data: sorted_sublists.__setitem__(idx, ParallelQuickSort._parallel_sort(data, depth + 1, max_depth)), args=(i, sublist))
+            threads.append(thread)
+            thread.start()
+
+        for thread in threads:
+            thread.join()
+
+        return sorted_sublists[0] + [pivot] + sorted_sublists[1]
+
+    @staticmethod
+    def _sequential_sort(arr):
+        if len(arr) <= 1:
+            return arr
+
+        pivot = arr[0]
+        less = [x for x in arr[1:] if x <= pivot]
+        greater = [x for x in arr[1:] if x > pivot]
+
+        return ParallelQuickSort._sequential_sort(less) + [pivot] + ParallelQuickSort._sequential_sort(greater)
+        
     @performance_logger()
     @staticmethod
     def sort(arr: List[int]) -> List[int]:
@@ -32,28 +70,12 @@ class ParallelQuickSort:
         Returns:
             List[int]: Lista ordenada de enteros.
         """
-        if len(arr) <= 1:
-            return arr
-        else:
-            pivot = arr[0]
-            less = [x for x in arr[1:] if x <= pivot]
-            greater = [x for x in arr[1:] if x > pivot]
-
-            # Ordenar en paralelo
-            threads = []
-            sorted_sublists = [None, None]
-
-            for i, sublist in enumerate([less, greater]):
-                thread = threading.Thread(target=lambda idx, data: sorted_sublists.__setitem__(idx, ParallelQuickSort.sort(data)), args=(i, sublist))
-                threads.append(thread)
-                thread.start()
-
-            for thread in threads:
-                thread.join()
-
-            return sorted_sublists[0] + [pivot] + sorted_sublists[1]
+        return ParallelQuickSort._parallel_sort(arr)
 
 class ParallelMergeSort:
+    Time_Complexity = "O(n log n)"
+    Space_Complexity = "O(n)"
+    
     """
     Ordena una lista utilizando el algoritmo MergeSort en paralelo.
 
@@ -70,6 +92,71 @@ class ParallelMergeSort:
     - Utiliza 2 hilos en cada nivel de la división para ordenar las mitades.
     - El número de hilos activos depende de la profundidad de la división.
     """
+    @staticmethod
+    def _merge_sort(arr, depth=0, max_depth=2):
+        if len(arr) <= 1:
+            return arr
+        elif depth >= max_depth:
+            return ParallelMergeSort._sequential_sort(arr)
+
+        mid = len(arr) // 2
+        left_half = arr[:mid]
+        right_half = arr[mid:]
+
+        results = {}
+
+        threads = [
+            threading.Thread(target=ParallelMergeSort._parallel_sort_sublist, args=(left_half, depth + 1, max_depth, results, 'left')),
+            threading.Thread(target=ParallelMergeSort._parallel_sort_sublist, args=(right_half, depth + 1, max_depth, results, 'right'))
+        ]
+
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+
+        left_sorted = results['left']
+        right_sorted = results['right']
+
+        return ParallelMergeSort._merge(left_sorted, right_sorted)
+
+    @staticmethod
+    def _merge(left_half, right_half):
+        merged = []
+        i = j = 0
+
+        while i < len(left_half) and j < len(right_half):
+            if left_half[i] < right_half[j]:
+                merged.append(left_half[i])
+                i += 1
+            else:
+                merged.append(right_half[j])
+                j += 1
+
+        while i < len(left_half):
+            merged.append(left_half[i])
+            i += 1
+        while j < len(right_half):
+            merged.append(right_half[j])
+            j += 1
+
+        return merged
+
+    @staticmethod
+    def _sequential_sort(arr):
+        if len(arr) <= 1:
+            return arr
+
+        mid = len(arr) // 2
+        left_half = ParallelMergeSort._sequential_sort(arr[:mid])
+        right_half = ParallelMergeSort._sequential_sort(arr[mid:])
+
+        return ParallelMergeSort._merge(left_half, right_half)
+
+    @staticmethod
+    def _parallel_sort_sublist(arr, depth, max_depth, results, key):
+        sorted_arr = ParallelMergeSort._merge_sort(arr, depth, max_depth)
+        results[key] = sorted_arr
 
     @staticmethod
     @performance_logger()
@@ -83,47 +170,11 @@ class ParallelMergeSort:
         Returns:
             List[int]: Lista ordenada de enteros.
         """
-        if len(arr) > 1:
-            # Dividir la lista en dos mitades
-            mid = len(arr) // 2
-            left_half = arr[:mid]
-            right_half = arr[mid:]
-
-            # Crear hilos para ordenar las mitades en paralelo
-            left_thread = threading.Thread(target=lambda: ParallelMergeSort.sort(left_half))
-            right_thread = threading.Thread(target=lambda: ParallelMergeSort.sort(right_half))
-
-            left_thread.start()
-            right_thread.start()
-
-            # Esperar a que los hilos terminen
-            left_thread.join()
-            right_thread.join()
-
-            # Combinar las mitades ordenadas
-            i = j = k = 0
-            while i < len(left_half) and j < len(right_half):
-                if left_half[i] < right_half[j]:
-                    arr[k] = left_half[i]
-                    i += 1
-                else:
-                    arr[k] = right_half[j]
-                    j += 1
-                k += 1
-
-            # Combinar los elementos restantes
-            while i < len(left_half):
-                arr[k] = left_half[i]
-                i += 1
-                k += 1
-
-            while j < len(right_half):
-                arr[k] = right_half[j]
-                j += 1
-                k += 1
-        return arr
+        return ParallelMergeSort._merge_sort(arr)
 
 class ParallelBucketSort:
+    Time_Complexity = "O(n + k)"
+    Space_Complexity = "O(n * k)"
     """
     Ordena una lista utilizando el algoritmo Bucket Sort en paralelo.
 
@@ -143,7 +194,7 @@ class ParallelBucketSort:
 
     @staticmethod
     @performance_logger()
-    def sort(arr: List[int], bucket_size: int = 5) -> List[int]:
+    def sort(arr: List[int], bucket_size: int = 5, max_workers: int = 10) -> List[int]:
         """
         Ordena una lista de enteros utilizando el algoritmo Bucket Sort en paralelo.
 
@@ -154,10 +205,11 @@ class ParallelBucketSort:
         Returns:
             List[int]: Lista ordenada de enteros.
         """
+        
         if len(arr) == 0:
             return arr
 
-        # Determinar los valores mínimo y máximo de la lista
+        # Determinar los valores mínimo y máximo
         min_value, max_value = min(arr), max(arr)
 
         # Inicializar los buckets
@@ -165,30 +217,24 @@ class ParallelBucketSort:
         buckets = [[] for _ in range(bucket_count)]
 
         # Distribuir los elementos en los buckets
-        for i in range(len(arr)):
-            index = math.floor((arr[i] - min_value) / bucket_size)
-            buckets[index].append(arr[i])
+        for i in arr:
+            index = min(math.floor((i - min_value) / bucket_size), bucket_count - 1)
+            buckets[index].append(i)
 
-        # Ordenar los buckets en paralelo y concatenar
+        # Usar ThreadPoolExecutor para ordenar los buckets
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = [executor.submit(sorted, bucket) for bucket in buckets]
+
+        # Recoger los resultados y concatenar
         sorted_arr = []
-        threads = []
-        for bucket in buckets:
-            thread = threading.Thread(target=lambda b=bucket: b.sort())
-            threads.append(thread)
-            thread.start()
-
-        # Esperar a que todos los hilos terminen
-        for thread in threads:
-            thread.join()
-
-        # Concatenar los buckets ordenados
-        for bucket in buckets:
-            sorted_arr.extend(bucket)
+        for future in futures:
+            sorted_arr.extend(future.result())
 
         return sorted_arr
 
-
 class ParallelRadixSort:
+    Time_Complexity = "O(d*(n+b))"
+    Space_Complexity = "O(n + b)"
     """
     Ordena una lista utilizando el algoritmo Radix Sort en paralelo.
 
@@ -262,6 +308,8 @@ class ParallelRadixSort:
         return [-x for x in reversed(neg)] + non_neg
 
 class ParallelCountingSort:
+    Time_Complexity = "O(n + k)"
+    Space_Complexity = "O(n + k)"
     """
     Ordena una lista utilizando el algoritmo Counting Sort en paralelo.
 
@@ -337,6 +385,8 @@ class ParallelCountingSort:
         return sorted_data
 
 class ParallelTimSort:
+    Time_Complexity = "O(n log n)"
+    Space_Complexity = "O(n)"
     """
     Ordena una lista utilizando el algoritmo TimSort en paralelo.
 
@@ -408,6 +458,8 @@ class ParallelTimSort:
         return result
 
 class ParallelExponentialSearch:
+    Time_Complexity = "O(log n)"
+    Space_Complexity = "O(1)"
     """
     Realiza una búsqueda exponencial en paralelo en una lista ordenada.
 
@@ -485,6 +537,8 @@ class ParallelExponentialSearch:
         return -1
 
 class ParallelInterpolationSearch:
+    Time_Complexity = "O(log log n)"
+    Space_Complexity = "O(1)"
     """
     Realiza una búsqueda por interpolación en una lista ordenada.
 

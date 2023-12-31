@@ -6,6 +6,8 @@ from performanzer import performance_logger
 from typing import List
 
 class LinearSearch:
+    Time_Complexity = "O(n)"
+    Space_Complexity = "O(1)"
     """
     Implementa el algoritmo de búsqueda lineal.
 
@@ -38,6 +40,8 @@ class LinearSearch:
         return -1
 
 class BinarySearch:
+    Time_Complexity = "O(log n)"
+    Space_Complexity = "O(1)"
     """
     Implementa el algoritmo de búsqueda binaria.
 
@@ -78,6 +82,8 @@ class BinarySearch:
         return -1
 
 class JumpSearch:
+    Time_Complexity = "O(√n)"
+    Space_Complexity = "O(1)"
     """
     Implementa el algoritmo de búsqueda por salto (Jump Search).
 
@@ -127,6 +133,8 @@ class JumpSearch:
         return -1
 
 class ExponentialSearch:
+    Time_Complexity = "O(log n)"
+    Space_Complexity = "O(1)"
     """
     Realiza una búsqueda exponencial en un arreglo ordenado mediante búsqueda binaria.
 
@@ -196,6 +204,8 @@ class ExponentialSearch:
         return -1
 
 class InterpolationSearch:
+    Time_Complexity = "O(n)"
+    Space_Complexity = "O(1)"
     """
     Implementa el algoritmo de búsqueda por interpolación.
 
@@ -258,6 +268,8 @@ class Node_SkipList:
         self.forward = [None] * (level + 1)
 
 class SkipList:
+    Time_Complexity = "O(log n)"
+    Space_Complexity = "O(n)"
     """
     Clase para representar una Skip List.
 
@@ -374,13 +386,16 @@ class Node_BS:
     - right (Node_BS): El hijo derecho del nodo.
     """
     def __init__(self, key):
+        self.val = key
         self.left = None
         self.right = None
-        self.val = key
+        self.height = 1  # Altura inicial para cada nodo es 1
 
 class BinaryTree:
+    Time_Complexity = "O(h)"
+    Space_Complexity = "O(n)"
     """
-    Implementa un árbol binario de búsqueda.
+    Implementa un árbol binario de búsqueda mediante nivelación por inserción en AVL
 
     Complejidad:
     - Inicialización (__init__): O(1) en tiempo y espacio.
@@ -400,36 +415,83 @@ class BinaryTree:
     def __init__(self):
         self.root = None
 
-    def insert(self, key: int) -> None:
-        """
-        Inserta un nuevo elemento en el árbol.
+    def _get_height(self, node):
+        if not node:
+            return 0
+        return node.height
 
-        Args:
-            key (int): La clave del elemento a insertar.
-        """
-        if self.root is None:
-            self.root = Node_BS(key)
-        else:
-            self._insert_recursive(self.root, key)
+    def _update_height(self, node):
+        node.height = 1 + max(self._get_height(node.left), self._get_height(node.right))
 
-    def _insert_recursive(self, node: Node_BS, key: int) -> None:
-        """
-        Método auxiliar para insertar un elemento de manera recursiva.
+    def _get_balance(self, node):
+        if not node:
+            return 0
+        return self._get_height(node.left) - self._get_height(node.right)
 
-        Args:
-            node (Node_BS): El nodo actual en el árbol.
-            key (int): La clave del elemento a insertar.
-        """
+    def _rotate_right(self, y):
+        if y is None or y.left is None:
+            return y  # No se puede realizar la rotación si y o y.left son None
+
+        x = y.left
+        T2 = x.right
+
+        # Realizar rotación
+        x.right = y
+        y.left = T2
+
+        # Actualizar alturas
+        self._update_height(y)
+        self._update_height(x)
+
+        return x
+
+
+    def _rotate_left(self, x):
+        if x is None or x.right is None:
+            return x  # No se puede realizar la rotación si x o x.right son None
+
+        y = x.right
+        T2 = y.left
+
+        # Realizar rotación
+        y.left = x
+        x.right = T2
+
+        # Actualizar alturas
+        self._update_height(x)
+        self._update_height(y)
+
+        return y
+
+
+    def _insert_recursive(self, node, key):
+        if not node:
+            return Node_BS(key)
+
         if key < node.val:
-            if node.left is None:
-                node.left = Node_BS(key)
-            else:
-                self._insert_recursive(node.left, key)
+            node.left = self._insert_recursive(node.left, key)
         else:
-            if node.right is None:
-                node.right = Node_BS(key)
-            else:
-                self._insert_recursive(node.right, key)
+            node.right = self._insert_recursive(node.right, key)
+
+        self._update_height(node)
+        balance = self._get_balance(node)
+
+        # Rotaciones para balancear el árbol
+        if balance > 1 and key < node.left.val:
+            return self._rotate_right(node)
+        if balance < -1 and key > node.right.val:
+            return self._rotate_left(node)
+        if balance > 1 and key > node.left.val:
+            node.left = self._rotate_left(node.left)
+            return self._rotate_right(node)
+        if balance < -1 and key < node.right.val:
+            node.right = self._rotate_right(node.right)
+            return self._rotate_left(node)
+
+        return node
+
+    def insert(self, key: int):
+        self.root = self._insert_recursive(self.root, key)
 
     @performance_logger()
     def search(self, key: int) -> Node_BS | int:
@@ -455,13 +517,15 @@ class BinaryTree:
         Returns:
             Node_BS | int: El nodo que contiene la clave, o -1 si no se encuentra.
         """
-        if not node:
-            return -1
-        if node.val == key:
-            return node
-        if key < node.val:
-            return self._search_recursive(node.left, key)
-        return self._search_recursive(node.right, key)
+        current = self.root
+        while current:
+            if current.val == key:
+                return current
+            elif key < current.val:
+                current = current.left
+            else:
+                current = current.right
+        return -1
 
 class Node_RB:
     """
@@ -482,6 +546,8 @@ class Node_RB:
         self.right = None
 
 class RedBlackTree:
+    Time_Complexity = "O(log n)"
+    Space_Complexity = "O(n)"
     """
     Implementa un árbol rojo-negro.
 

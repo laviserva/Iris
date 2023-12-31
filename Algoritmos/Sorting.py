@@ -2,6 +2,8 @@ from typing import List
 from performanzer import performance_logger
 
 class BubbleSort:
+    Time_Complexity = "O(n^2)"
+    Space_Complexity = "O(1)"
     """
     Implementa el algoritmo de ordenamiento burbuja.
 
@@ -36,6 +38,8 @@ class BubbleSort:
         return data
 
 class QuickSort:
+    Time_Complexity = "O(n^2)"
+    Space_Complexity = "O(log n)"
     """
     Implementa el algoritmo de ordenamiento rápido (QuickSort).
 
@@ -102,6 +106,8 @@ class QuickSort:
         return i+1
 
 class MergeSort:
+    Time_Complexity = "O(n log n)"
+    Space_Complexity = "O(n)"
     """
     Implementa el algoritmo de ordenamiento por mezcla (Merge Sort).
 
@@ -112,6 +118,38 @@ class MergeSort:
     Métodos:
     - sort: Método público para ordenar la lista utilizando Merge Sort.
     """
+    @staticmethod
+    def _merge(data, start, mid, end):
+        merged = []
+        i, j = start, mid + 1
+
+        while i <= mid and j <= end:
+            if data[i] < data[j]:
+                merged.append(data[i])
+                i += 1
+            else:
+                merged.append(data[j])
+                j += 1
+
+        while i <= mid:
+            merged.append(data[i])
+            i += 1
+
+        while j <= end:
+            merged.append(data[j])
+            j += 1
+
+        for i, val in enumerate(merged):
+            data[start + i] = val
+
+    @staticmethod
+    def _merge_sort(data, start, end):
+        if start < end:
+            mid = (start + end) // 2
+            MergeSort._merge_sort(data, start, mid)
+            MergeSort._merge_sort(data, mid + 1, end)
+            MergeSort._merge(data, start, mid, end)
+
     @staticmethod
     @performance_logger()
     def sort(data: List[int]) -> List[int]:
@@ -128,37 +166,12 @@ class MergeSort:
         - Tiempo: O(n log n), donde n es el número de elementos en la lista.
         - Espacio: O(n), ya que se requiere espacio adicional para las sublistas temporales.
         """
-        if len(data) > 1:
-            mid = len(data) // 2
-            L = data[:mid]
-            R = data[mid:]
-
-            MergeSort.sort(L)
-            MergeSort.sort(R)
-
-            i = j = k = 0
-
-            while i < len(L) and j < len(R):
-                if L[i] < R[j]:
-                    data[k] = L[i]
-                    i += 1
-                else:
-                    data[k] = R[j]
-                    j += 1
-                k += 1
-
-            while i < len(L):
-                data[k] = L[i]
-                i += 1
-                k += 1
-
-            while j < len(R):
-                data[k] = R[j]
-                j += 1
-                k += 1
+        MergeSort._merge_sort(data, 0, len(data) - 1)
         return data
 
 class HeapSort:
+    Time_Complexity = "O(n log n)"
+    Space_Complexity = "O(1)"
     """
     Implementa el algoritmo de ordenamiento por montículo (Heap Sort).
 
@@ -223,6 +236,8 @@ class HeapSort:
             HeapSort._heapify(data, n, largest)
 
 class InsertionSort:
+    Time_Complexity = "O(n^2)"
+    Space_Complexity = "O(1)"
     """
     Implementa el algoritmo de ordenamiento por inserción.
 
@@ -278,6 +293,8 @@ class InsertionSort:
         return i+1
 
 class SelectionSort:
+    Time_Complexity = "O(n^2)"
+    Space_Complexity = "O(1)"
     """
     Implementa el algoritmo de ordenamiento por selección.
 
@@ -313,6 +330,8 @@ class SelectionSort:
         return data
 
 class BucketSort:
+    Time_Complexity = "O(n + k)"
+    Space_Complexity = "O(n * k)"
     """
     Implementa el algoritmo de ordenamiento por cubetas (Bucket Sort).
 
@@ -366,6 +385,8 @@ class BucketSort:
         return sorted_arr
 
 class RadixSort:
+    Time_Complexity = "O(d * (n + b))"
+    Space_Complexity = "O(n + b)"
     """
     Implementa el algoritmo de ordenamiento Radix Sort.
 
@@ -435,6 +456,8 @@ class RadixSort:
         return [-x for x in reversed(neg)] + non_neg
 
 class CountingSort:
+    Time_Complexity = "O(n + k)"
+    Space_Complexity = "O(k)"
     """
     Implementa el algoritmo de ordenamiento por conteo (Counting Sort) con capacidad para manejar números negativos.
 
@@ -509,6 +532,8 @@ class CountingSort:
         return sorted_data
 
 class TimSort:
+    Time_Complexity = "O(n log n)"
+    Space_Complexity = "O(n)"
     """
     Implementación del algoritmo de ordenamiento TimSort.
 
@@ -605,8 +630,8 @@ class TimSort:
         - Espacio: O(n), necesita espacio para las subsecciones temporales.
         """
         len1, len2 = m - l + 1, r - m
-        left = arr[l:l + len1]
-        right = arr[m + 1:m + 1 + len2]
+        left = arr[l:l + len1].copy()
+        right = arr[m + 1:m + 1 + len2].copy()
 
         i = j = 0
         k = l
