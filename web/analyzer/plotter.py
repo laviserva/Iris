@@ -1,10 +1,12 @@
 import io
 import os
 import sys
-import matplotlib.pyplot as plt
+import inspect
 import pandas as pd
 import seaborn as sns
 from typing import List
+
+import matplotlib.pyplot as plt
 
 root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 algoritmos_path = os.path.join(root_path, 'Algoritmos')
@@ -27,18 +29,20 @@ class Plotter:
     """Clase que se encarga de generar las gráficas de los algoritmos que se le pasen como parámetro."""
     @staticmethod
     def plot(arr: List[float], sort_algorithms: List[str], search_algorithms: List[str], parallel_algorithms: List[str]) -> io.BytesIO:
+        print("Preparando para ejecutar los algoritmos...")
+        Plotter._delete_logs()
         if sort_algorithms != []:
             run_algorithms.run_algorithms(arr, sort_algorithms, Sorting)
-            if search_algorithms != []:
-                run_algorithms.run_algorithms(arr, search_algorithms, Searching)
-            if parallel_algorithms != []:
-                sort_aux = [alg for alg in parallel_algorithms if "Sort" in alg]
-                search_aux = [alg for alg in parallel_algorithms if "Search" in alg]
-                if sort_aux != []:
-                    run_algorithms.run_algorithms(arr, sort_aux, Paralelizables)
-                if search_aux != []:
-                    run_algorithms.run_algorithms(arr, search_aux, Paralelizables)
-
+        if search_algorithms != []:
+            run_algorithms.run_algorithms(arr, search_algorithms, Searching)
+        if parallel_algorithms != []:
+            sort_aux = [alg for alg in parallel_algorithms if "Sort" in alg]
+            search_aux = [alg for alg in parallel_algorithms if "Search" in alg]
+            if sort_aux != []:
+                run_algorithms.run_algorithms(arr, sort_aux, Paralelizables)
+            if search_aux != []:
+                run_algorithms.run_algorithms(arr, search_aux, Paralelizables)
+        print("Algoritmos ejecutados.")
         # Limpiando los logs
         log_fix.fix()
         data = Plotter._load_performance()
@@ -81,12 +85,31 @@ class Plotter:
                 data[algorithm]['memory'] = max(data[algorithm]['memory'], memory)
 
         return data
+
+    @staticmethod
+    def get_algorithm_complexities():
+        complexity_dict = {}
+        for name, obj in inspect.getmembers(Sorting):
+            if inspect.isclass(obj) and hasattr(obj, 'Time_Complexity'):
+                complexity_dict[name] = {"Time": obj.Time_Complexity, "Memory": obj.Space_Complexity}
+        for name, obj in inspect.getmembers(Searching):
+            if inspect.isclass(obj) and hasattr(obj, 'Time_Complexity'):
+                complexity_dict[name] = {"Time": obj.Time_Complexity, "Memory": obj.Space_Complexity}
+        for name, obj in inspect.getmembers(Paralelizables):
+            if inspect.isclass(obj) and hasattr(obj, 'Time_Complexity'):
+                complexity_dict[name] = {"Time": obj.Time_Complexity, "Memory": obj.Space_Complexity}
+        return complexity_dict
     
     @staticmethod
     def _from_dict_to_array(data):
         if data is None:
             return [None, None, None]
-        algoritmos = [key for key in data]
+        complexities = Plotter.get_algorithm_complexities()
+        algoritmos = [
+            key.split(".")[0] + " " + complexities[key.split(".")[0]]["Time"] if "Parallel" not in key 
+            else key.split(".")[0] 
+            for key in data
+        ]
         tiempos = [value['time'] for value in data.values()]
         memorias = [value['memory'] for value in data.values()]
         return algoritmos, tiempos, memorias
@@ -115,7 +138,7 @@ class Plotter:
     
     @staticmethod
     def _delete_logs():
-        file_name_1 = os.path.join(root_path, "logs", "algorithm_performance_reduced.txt")
+        file_name_1 = os.path.join(root_path, "logs", "algorithm_performance.txt")
         file_name_2 = os.path.join(root_path, "logs", "algorithm_performance_reduced.txt")
         if os.path.exists(file_name_1):
             os.remove(file_name_1)
