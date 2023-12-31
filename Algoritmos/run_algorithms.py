@@ -153,12 +153,14 @@ def run_algorithms(arr: List[Any], algorithms_array: List[str], module: sys.modu
         verbose (bool, opcional): Si es True, imprime resultados detallados.
     """
     element_to_search = random.choice(arr)
+    sorted_arr = sorted(arr)
     for class_name in algorithms_array:
+        print(f"Ejecutando algoritmo: {class_name}")
         algorithm = AlgorithmFactory.get_algorithm(module, class_name)
         if isinstance(algorithm, SortAlgorithm):
             algorithm.execute(arr.copy())
         elif isinstance(algorithm, SearchAlgorithm):
-            algorithm.execute(arr, [element_to_search])
+            algorithm.execute(sorted_arr, [element_to_search])
         elif isinstance(algorithm, DataStructureAlgorithm):
             search_result = algorithm.execute(arr, [element_to_search])
             if verbose:
