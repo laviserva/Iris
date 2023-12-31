@@ -1,10 +1,13 @@
+from django.conf import settings
 import matplotlib
 import json
 import sys
 import io
 import os
-
 import random
+
+import matplotlib.image as mpimg
+from PIL import Image
 
 import matplotlib.pyplot as plt
 from django.shortcuts import render
@@ -33,18 +36,26 @@ def analyzer(request):
     return render(request, 'analyzer.html')
 
 def base_plot(request):
-    data = sns.load_dataset("iris")
 
-    # Crear un regplot con Seaborn
-    plot = sns.kdeplot(x="sepal_length", y="sepal_width", data=data, hue="species")
 
-    # Guardar la gráfica en un buffer
+    print(__file__)
+    root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+    image_path = os.path.join(root_path, 'web', 'static', 'iris.png')
+
+    img = mpimg.imread(image_path)
+
+    # Crear una figura y un eje en Matplotlib
+    fig, ax = plt.subplots()
+    ax.imshow(img)
+    ax.axis('off')  # Ocultar los ejes
+
+    # Guardar la figura en un buffer
     buffer = io.BytesIO()
-    plt.savefig(buffer, format='png', dpi=300)
+    plt.savefig(buffer, format='png', transparent=True, dpi=300)
     buffer.seek(0)
-    plt.close()
+    plt.close(fig)
 
-    return HttpResponse(buffer, content_type='image/png')
+    return HttpResponse(buffer, content_type="image/png")
 
 @csrf_exempt
 @require_http_methods(["POST"])
