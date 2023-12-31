@@ -26,7 +26,8 @@ if algoritmos_path not in sys.path:
 from analyzer.plotter import Plotter
 
 matplotlib.use('Agg')
-sns.set_theme(style="whitegrid")
+sns.set_style("whitegrid")  # Ejemplos: "darkgrid", "whitegrid", "dark", "white", "ticks"
+sns.set_palette("pastel")   # Ejemplos: "deep", "muted", "bright", "pastel", "dark", "colorblind"
 
 def analyzer(request):
     return render(request, 'analyzer.html')
@@ -78,7 +79,8 @@ def latest_plot(request):
 def render_plot(sort_algorithms, search_algorithms, parallel_algorithms):
     if sort_algorithms == [] and search_algorithms == [] and parallel_algorithms == []:
         return base_plot()
-    
-    arr = [random.randint(0, 100) for _ in range(100)]
+    n = 10_000
+    arr = [i+1 for i in range(n)]
+    random.shuffle(arr)
     buffer = Plotter.plot(arr, sort_algorithms, search_algorithms, parallel_algorithms)
     return buffer
