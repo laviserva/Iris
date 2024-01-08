@@ -27,11 +27,15 @@ def performance_logger(algorithm_name=None):
             algo_name = algorithm_name if algorithm_name else func.__qualname__
 
             # Información de rendimiento
-            performance_info = f"Algoritmo: {algo_name}, Tiempo: {time_elapsed:.6f} s, Memoria: {mem_used:.2f} MiB\n"
-
-            # Escribir en un archivo
-            with open(file_dir, "a") as file:
-                file.write(performance_info)
+            performance_info = f"Algoritmo: {algo_name}, Tiempo: {time_elapsed:.6f} s, Memoria: {mem_used:.6f} MiB\n"
+            
+            if not os.path.exists(file_dir):
+                with open(file_dir, "w") as file:
+                    file.write(performance_info)
+            else:
+                # Escribir en un archivo
+                with open(file_dir, "a") as file:
+                    file.write(performance_info)
 
             return result
 
