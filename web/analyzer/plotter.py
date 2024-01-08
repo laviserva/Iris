@@ -52,12 +52,14 @@ class Plotter:
             return Plotter._base_plot()
         
         data = pd.DataFrame({'Algoritmo': algorithm, 'Tiempo': time, 'Memoria': memory})
+        data['Type'] = data['Algoritmo'].apply(lambda x: 'Sort' if 'Sort' in x else 'Search')
         data_sorted = data.sort_values(by='Tiempo', ascending=False)
 
         buffer = Plotter.generate_plot(data = data_sorted, x = 'Algoritmo', y = 'Tiempo',
                                        title = 'Comparación de Tiempo por Algoritmo',
                                        xlabel = 'Algoritmo',
-                                       ylabel = 'Tiempo (s)')
+                                       ylabel = 'Tiempo (s)',
+                                       hue = 'Type')
         return buffer
     
     @staticmethod
@@ -115,9 +117,9 @@ class Plotter:
         return algoritmos, tiempos, memorias
     
     @staticmethod
-    def generate_plot(data: pd.DataFrame, x: str, y: str, title: str, xlabel: str, ylabel: str) -> io.BytesIO:
+    def generate_plot(data: pd.DataFrame, x: str, y: str, title: str, xlabel: str, ylabel: str, hue: str) -> io.BytesIO:
         # Crear un regplot con Seaborn
-        sns.barplot(x=x, y=y, data=data)
+        sns.barplot(x=x, y=y, data=data, hue=hue, ci=None, dodge=False)
         plt.xticks(rotation=45, ha='right')
 
         # Ajustar títulos y etiquetas
