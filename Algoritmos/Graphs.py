@@ -1,9 +1,11 @@
+import heapq
 import re
 import sys
 from typing import Dict, List
 from performanzer import performance_logger
 
 from run_graphs import AlgorithmFactory
+import Graphs
 
 class ProcessGraphvizFormat:
     """
@@ -72,7 +74,7 @@ class ProcessGraphvizFormat:
         return nodes, edges
 
     @staticmethod
-    def save_file(dot_content: Dict, out_file: str, dpi=300):
+    def save_file(dot_content: Dict, out_file: str):
         """
         Procesa el contenido del diccionario para guardarlo en un archivo .dot
 
@@ -80,19 +82,8 @@ class ProcessGraphvizFormat:
             dot_content (Dict): contenido del diccionario.
         """
         # Implementación del procesamiento del archivo .dot aquí
-        out_content = "graph {\n"
-        for key in dot_content:
-            print("Key: ", key)
-            print("Value: ", dot_content[key])
-            for value in dot_content[key]:
-                out_content += f"\t{key} -- {value[0]} [label={value[1]}"
-                if value[2]:
-                    out_content += f" color={value[2]}"
-                out_content += "]\n"
-        out_content += "}"
-
         with open(out_file, "w") as f:
-            f.write(out_content)
+            f.write(dot_content)
         
 
 class Dijkstra:
@@ -110,7 +101,7 @@ class Dijkstra:
     """
     #@performance_logger
     @staticmethod
-    def find(data: Dict[int, Dict[int, int]]) -> Dict[int, int]:
+    def find(data: Dict[int, Dict[int, int]], start: str) -> Dict[int, int]:
         """
         Encuentra el camino más corto utilizando el algoritmo de Dijkstra.
 
@@ -124,8 +115,38 @@ class Dijkstra:
             Dict[int, int]: Diccionario con la distancia más corta desde el nodo fuente
                             a todos los demás nodos.
         """
-        # Implementación del algoritmo de Dijkstra aquí
-        ...
+        distances = {vertex[0]: float('infinity') for vertex in data}
+        distances[start] = 0
+
+        previous_nodes = {vertex: None for vertex in data}
+
+        pq = [(0, start)]
+        while pq:
+            current_distance, current_vertex = heapq.heappop(pq)
+
+            for neighbor, weight, _ in data[current_vertex]:
+                distance = current_distance + weight
+
+                if distance < distances[neighbor]:
+                    distances[neighbor] = distance
+                    previous_nodes[neighbor] = current_vertex
+                    heapq.heappush(pq, (distance, neighbor))
+
+        return distances, previous_nodes
+
+    @staticmethod
+    def shortest_path(graph, start, goal):
+        distances, previous_nodes = Dijkstra.find(graph, start)
+        path = []
+        current_node = goal
+        while current_node is not None:
+            path.insert(0, current_node)
+            current_node = previous_nodes[current_node]
+
+        if path[0] == start:  # Esto verifica si hay un camino conectado
+            return path, distances[goal]
+        else:
+            return "No hay un camino conectado entre {} y {}".format(start, goal)
 
 
 if __name__ == "__main__":
@@ -133,10 +154,11 @@ if __name__ == "__main__":
     graph_file = r"C:\Users\PC-04\Documents\Proyectos\Iris\web\graphs\temp\Grafo.dot"
 
     graph_data = ProcessGraphvizFormat.read_file(graph_file)
-    print("Graph data:", graph_data)
-    ProcessGraphvizFormat.save_file(graph_data[1], r"C:\Users\PC-04\Documents\Proyectos\Iris\web\graphs\temp\Grafo2.dot")
+    _, graph_data = graph_data
+    ProcessGraphvizFormat.save_file(graph_data, r"C:\Users\PC-04\Documents\Proyectos\Iris\web\graphs\temp\Grafo2.dot")
 
     # Obtener el algoritmo y ejecutarlo
-    dijkstra_algorithm = AlgorithmFactory.get_algorithm(sys.modules[__name__], 'Dijkstra')
-    shortest_paths = dijkstra_algorithm.execute(graph_data)
-    print("Shortest paths:", shortest_paths)
+    start = '1'
+    goal = '5'
+    dijkstra_algorithm = AlgorithmFactory.get_algorithm(Graphs, 'Dijkstra')
+    shortest_paths = dijkstra_algorithm.execute(graph_data, start, goal)
