@@ -25,13 +25,8 @@ class Plotter:
     """Clase que se encarga de generar las gráficas de los algoritmos que se le pasen como parámetro."""
     @staticmethod
     def plot(dot_content, out_file, dpi=300) -> io.BytesIO:
-        
-        # Agregar una línea para configurar el DPI
-        dpi_setting = f'digraph {{\n  graph [dpi={dpi}];\n'
-        modified_dot_content = dot_content.replace('digraph {', dpi_setting)
-
         # Crear un objeto Source y renderizar el gráfico
-        dot = graphviz.Source(modified_dot_content, format='png')
+        dot = graphviz.Source(dot_content, format='png')
         buffer = io.BytesIO()
         buffer.write(dot.pipe())
         buffer.seek(0)
