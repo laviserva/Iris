@@ -1,4 +1,5 @@
 from django.conf import settings
+import graphviz
 import matplotlib
 import json
 import sys
@@ -26,20 +27,33 @@ if root_path not in sys.path:
 if algoritmos_path not in sys.path:
     sys.path.append(algoritmos_path)
 
-from analyzer.plotter import Plotter
+from graphs.plotter import Plotter
 
 matplotlib.use('Agg')
 sns.set_style("whitegrid")  # Ejemplos: "darkgrid", "whitegrid", "dark", "white", "ticks"
 sns.set_palette("pastel")   # Ejemplos: "deep", "muted", "bright", "pastel", "dark", "colorblind"
 
-def analyzer(request):
-    return render(request, 'analyzer.html')
+def graphs(request):
+    return render(request, 'graphs.html')
 
-def base_plot(request):
-    root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    image_path = os.path.join(root_path, 'web', 'static', 'iris.png')
+def base_graph(request):
+    actual_path = os.path.abspath(os.path.dirname(__file__))
 
-    img = mpimg.imread(image_path)
+    dot_file = os.path.join(actual_path, 'temp', 'Grafo.dot')
+    print("ELPEPE DOT_FILE: ", dot_file)
+
+    with open(dot_file, 'r') as file:
+            dot_content = file.read()
+        
+    # Crear un objeto Source y renderizar el gráfico
+    dot = graphviz.Source(dot_content, format='png')
+
+    output_path = os.path.join(actual_path, 'temp', 'graph')
+
+    # Render and save the graph
+    dot.render(filename=output_path, cleanup=True)
+
+    img = mpimg.imread(output_path+".png")
 
     # Crear una figura y un eje en Matplotlib
     fig, ax = plt.subplots()
@@ -48,7 +62,7 @@ def base_plot(request):
 
     # Guardar la figura en un buffer
     buffer = io.BytesIO()
-    plt.savefig(buffer, format='png', transparent=True, dpi=300)
+    plt.savefig(buffer, format='png', transparent=True, dpi=200)
     buffer.seek(0)
     plt.close(fig)
 
@@ -58,11 +72,11 @@ def base_plot(request):
 @require_http_methods(["POST"])
 def process_algorithms(request):
     data = json.loads(request.body)
-    sort_algorithms = data.get('sortAlgorithm', [])
-    search_algorithms = data.get('searchAlgorithm', [])
-    parallel_algorithms = data.get('paralellAlgorithm', [])
-
-    buffer = render_plot(sort_algorithms, search_algorithms, parallel_algorithms)
+    algorithm = data.get('selectedAlgorithm', [])
+    if not algorithm:
+        return JsonResponse({'status': 'error', 'message': 'No algorithm selected'})
+    
+    buffer = render_graph(algorithm)
 
     # Guardar la imagen en un archivo
     filename = f"plot.png"
@@ -71,24 +85,30 @@ def process_algorithms(request):
         f.write(buffer.getvalue())
 
     # Almacenar la ruta del archivo en la sesión
-    request.session['latest_plot_image'] = filepath
+    request.session['latest_graph_image'] = filepath
 
     return JsonResponse({'status': 'success'})
 
-def latest_plot(request):
+def latest_graph(request):
     # Obtener la ruta del archivo de la imagen más reciente
-    filepath = request.session.get('latest_plot_image')
+    filepath = request.session.get('latest_graph_image')
+    print("ELPEPE FILEPATH: ", filepath)
     if filepath and os.path.exists(filepath):
         with open(filepath, 'rb') as f:
             return HttpResponse(f.read(), content_type="image/png")
     else:
         return HttpResponse("No image available", status=404)
 
-def render_plot(sort_algorithms, search_algorithms, parallel_algorithms):
-    if sort_algorithms == [] and search_algorithms == [] and parallel_algorithms == []:
-        return base_plot()
-    n = 10_000
-    arr = [i+1 for i in range(n)]
-    random.shuffle(arr)
-    buffer = Plotter.plot(arr, sort_algorithms, search_algorithms, parallel_algorithms)
+def render_graph(algorithm, dpi=300):
+    actual_path = os.path.abspath(os.path.dirname(__file__))
+    root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+
+    dot_file = os.path.join(actual_path, 'temp', 'Grafo.dot')
+    out_file = os.path.join(root_path, "temp", "plot.png")
+    print("ELPEPE DOT_FILE: ", dot_file)
+
+    print("ELPEPE ALGORITMO: ", algorithm)
+
+    buffer = Plotter.plot(dot_file, out_file, dpi=dpi)
+
     return buffer

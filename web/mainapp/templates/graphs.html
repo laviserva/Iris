@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simulador de Algoritmos</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            font-family: Arial, sans-serif;
+        }
+        .sidebar {
+            width: 230px;
+            background-color: #f0f0f0;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .algorithm-container {
+            overflow-y: auto;
+            flex-grow: 1;
+            padding: 20px;
+        }
+        .button-section {
+            padding: 10px;
+            background-color: #e0e0e0;
+            border-top: 1px solid #ccc;
+        }
+        .simulate-button {
+            width: 100%;
+            padding: 10px;
+            background-color: blue;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .checkbox-group {
+            margin-bottom: 10px;
+        }
+        .content {
+            margin-left: 230px; /* Ajusta esto al ancho de tu barra lateral */
+            padding: 20px;
+            display: flex;
+            justify-content: center; /* Centrado horizontal */
+            height: calc(100vh - 40px); /* Ajusta la altura si es necesario */
+            text-align: center;
+        }
+
+        .content img {
+            max-width: 100%;
+            height: auto;
+        }
+        #loadingIndicator{
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="algorithm-container">
+        <h3>Analizar</h3>
+        <div class="checkbox-group">
+            <input type="radio" id="shortestpath" name="analyzeGraph" value="ShortestPath">
+            <label for="ShortestPath">Shortest Path</label><br>
+        </div>
+    </div>
+    <div class="button-section">
+        <button class="simulate-button" onclick="sendCheckboxData()">Simular</button>
+    </div>
+</div>
+<div class="content">
+    <div id="loadingIndicator">Cargando...</div>
+    <img id="plotImage" src="{% url 'generate-graph' %}" alt="Gráfica Seaborn">
+</div>
+
+<script>
+    // Función para recolectar los datos de los checkboxes
+    function collectCheckboxData() {
+        let checkedCheckbox = document.querySelector('[name="analyzeGraph"]:checked');
+        return checkedCheckbox ? checkedCheckbox.value : null;
+    }
+
+     // Función para enviar los datos al servidor
+    function sendCheckboxData() {
+        let data = collectCheckboxData();
+
+        document.getElementById('loadingIndicator').style.display = 'block';
+        document.getElementById('plotImage').style.display = 'none';
+
+        fetch("/graphs/process_algorithms/", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ 'selectedAlgorithm': data })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                let plotImage = document.getElementById('plotImage');
+                plotImage.onload = function() {
+                    document.getElementById('loadingIndicator').style.display = 'none';
+                    plotImage.style.display = 'block';
+                };
+                plotImage.src = "/graphs/latest_graph/" + "?dummy=" + new Date().getTime();
+            } else {
+                console.error('Error en la respuesta del servidor');
+                document.getElementById('loadingIndicator').style.display = 'none';
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            document.getElementById('loadingIndicator').style.display = 'none';
+        });
+    }
+    function toggleCheckboxes(sourceCheckbox, groupName) {
+        document.querySelectorAll(`[name="${groupName}"]`).forEach(checkbox => {
+            checkbox.checked = sourceCheckbox.checked;
+        });
+    }
+
+    // Agrega un 'listener' a los checkboxes para desmarcar el checkbox de la sección si uno de ellos se desmarca
+    document.querySelectorAll('[name="sortAlgorithm"], [name="searchAlgorithm"], [name="paralellAlgorithm"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            let groupCheckboxId = this.name === 'sortAlgorithm' ? 'sortAlgorithms' : 
+                                this.name === 'searchAlgorithm' ? 'searchAlgorithms' : 'parallelAlgorithms';
+            if (!this.checked) {
+                document.getElementById(groupCheckboxId).checked = false;
+            } else {
+                // Verificar si todos los checkboxes de la sección están marcados
+                let allChecked = true;
+                document.querySelectorAll(`[name="${this.name}"]`).forEach(cb => {
+                    if (!cb.checked) allChecked = false;
+                });
+                if (allChecked) {
+                    document.getElementById(groupCheckboxId).checked = true;
+                }
+            }
+        });
+    });
+
+</script>
+
+</body>
+</html>
