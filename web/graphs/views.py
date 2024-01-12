@@ -17,6 +17,9 @@ import seaborn as sns
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from Algoritmos import Graphs
+from Algoritmos.Graphs import ProcessGraphvizFormat
+from Algoritmos.run_graphs import AlgorithmFactory
 
 root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 algoritmos_path = os.path.join(root_path, 'Algoritmos')
@@ -40,7 +43,6 @@ def base_graph(request):
     actual_path = os.path.abspath(os.path.dirname(__file__))
 
     dot_file = os.path.join(actual_path, 'temp', 'Grafo.dot')
-    print("ELPEPE DOT_FILE: ", dot_file)
 
     with open(dot_file, 'r') as file:
             dot_content = file.read()
@@ -92,7 +94,6 @@ def process_algorithms(request):
 def latest_graph(request):
     # Obtener la ruta del archivo de la imagen más reciente
     filepath = request.session.get('latest_graph_image')
-    print("ELPEPE FILEPATH: ", filepath)
     if filepath and os.path.exists(filepath):
         with open(filepath, 'rb') as f:
             return HttpResponse(f.read(), content_type="image/png")
@@ -101,14 +102,57 @@ def latest_graph(request):
 
 def render_graph(algorithm, dpi=300):
     actual_path = os.path.abspath(os.path.dirname(__file__))
-    root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
     dot_file = os.path.join(actual_path, 'temp', 'Grafo.dot')
-    out_file = os.path.join(root_path, "temp", "plot.png")
-    print("ELPEPE DOT_FILE: ", dot_file)
+    nodes, graph_data = ProcessGraphvizFormat.read_file(dot_file)
+    start = random.choice(nodes)
+    goal = random.choice(nodes)
+    while start == goal:
+        goal = random.choice(nodes)
 
-    print("ELPEPE ALGORITMO: ", algorithm)
+    dijkstra_algorithm = AlgorithmFactory.get_algorithm(Graphs, algorithm)
+    shortest_paths = dijkstra_algorithm.execute(graph_data, start, goal)
 
-    buffer = Plotter.plot(dot_file, out_file, dpi=dpi)
+    shortest_path, _ = shortest_paths
+    buffer = process_shortest_path(dot_file, shortest_path)
 
     return buffer
+
+def process_shortest_path(dot_file, shortest_path):
+    actual_path = os.path.abspath(os.path.dirname(__file__))
+    new_dot_content = coloryze_edges(dot_file, shortest_path)
+
+    new_dot_file = os.path.join(actual_path, 'temp', 'Grafo 2')
+    ProcessGraphvizFormat.save_file(new_dot_content, new_dot_file + ".dot")
+
+    dot = graphviz.Source(new_dot_content, format='png')
+
+    output_path = os.path.join(actual_path, 'temp', 'graph 2')
+
+    # Render and save the graph
+    dot.render(filename=output_path, cleanup=True)
+
+    img = mpimg.imread(output_path+".png")
+
+    # Crear una figura y un eje en Matplotlib
+    fig, ax = plt.subplots()
+    ax.imshow(img)
+    ax.axis('off')  # Ocultar los ejes
+
+    # Guardar la figura en un buffer
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png', transparent=True, dpi=200)
+    
+    return buffer
+
+def coloryze_edges(dot_file, shortest_path):
+    with open(dot_file, 'r') as file:
+        dot_content = file.read()
+
+    for i in range(len(shortest_path)-1):
+        if f"{shortest_path[i]} -- {shortest_path[i+1]}" in dot_content:
+            dot_content = dot_content.replace(f"{shortest_path[i]} -- {shortest_path[i+1]}", f"{shortest_path[i]} -- {shortest_path[i+1]} [color=red]")
+        elif f"{shortest_path[i+1]} -- {shortest_path[i]}" in dot_content:
+            dot_content = dot_content.replace(f"{shortest_path[i+1]} -- {shortest_path[i]}", f"{shortest_path[i+1]} -- {shortest_path[i]} [color=red]")
+
+    return dot_content
