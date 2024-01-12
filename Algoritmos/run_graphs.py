@@ -4,12 +4,13 @@ from typing import Any, Dict
 # Interfaz común para todos los algoritmos de camino más corto
 class Algorithm(ABC):
     @abstractmethod
-    def execute(self, data: Dict[Any, Any]) -> Dict[Any, Any]:
+    def execute(self, data: Dict[Any, Any], start: str, goal: str) -> Dict[Any, Any]:
         """
         Método abstracto para ejecutar el algoritmo.
 
         Args:
             data (Dict[Any, Any]): Los datos sobre los que operar.
+            start (str): El nodo de inicio (si aplicable).
 
         Returns:
             Dict[Any, Any]: El resultado de la ejecución del algoritmo.
@@ -27,17 +28,18 @@ class PathFindingAlgorithm(Algorithm):
         """
         self.algorithm = algorithm
 
-    def execute(self, data: Dict[Any, Any]) -> Dict[Any, Any]:
+    def execute(self, data: Dict[Any, Any], start: str, goal: str) -> Dict[Any, Any]:
         """
         Ejecuta el algoritmo de camino más corto en los datos proporcionados.
 
         Args:
             data (Dict[Any, Any]): Diccionario de datos para encontrar el camino más corto.
+            start (str): El nodo de inicio (si aplicable).
 
         Returns:
             Dict[Any, Any]: El resultado del algoritmo de camino más corto.
         """
-        return self.algorithm.find(data)
+        return self.algorithm.shortest_path(data, start, goal)
 
 # Fábrica de algoritmos
 class AlgorithmFactory:
